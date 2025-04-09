@@ -651,6 +651,7 @@ void loadGameConfig()
 void processSerialCommand()
 {
     String command = Serial.readStringUntil('\n');
+    Serial.println(command);
 
     if (command.startsWith("SET:"))
     {

@@ -2,12 +2,12 @@
     "countdown": 300,
     "penalty": 30,
     "switches": [
+        "1",
         "0",
         "0",
         "0",
         "0",
-        "0",
-        "0"
+        "1"
     ],
     "buttons": [
         "1",
@@ -36,7 +36,7 @@
         ],
         [
             "0",
-            "1"
+            "6"
         ],
         [
             "0",
@@ -52,17 +52,17 @@
         ],
         [
             "0",
-            "1"
+            "4"
         ],
         [
             "0",
             "1"
         ]
     ],
-    "keypad_code": "1234",
-    "mp3_start": "",
-    "mp3_victory": "",
-    "mp3_defeat": "",
-    "mp3_success": "",
-    "mp3_failure": ""
+    "keypad_code": "1234A",
+    "mp3_start": "ee",
+    "mp3_victory": "dd",
+    "mp3_defeat": "ffdd",
+    "mp3_success": "ffd",
+    "mp3_failure": "ddf"
 }

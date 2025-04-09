@@ -229,10 +229,19 @@ class KeypadGameConfigurator:
         """Send a command to the Arduino and wait for response"""
         if not self.serial_port or not self.serial_port.is_open:
             raise Exception("Not connected to Arduino")
-        
+        print("sending :",command)
         self.serial_port.write(f"{command}\n".encode('utf-8'))
-        time.sleep(0.1)  # Give Arduino time to process
-        response = self.serial_port.readline().decode('utf-8').strip()
+        time.sleep(1)  # Give Arduino time to process
+        
+        raw_response = self.serial_port.readline()
+        print(f"Raw response bytes: {raw_response}")
+        
+        try:
+            response = raw_response.decode('utf-8').strip()
+            print(f"Decoded response: {response}")
+        except UnicodeDecodeError as e:
+            print(f"Decoding error: {e}")
+            raise Exception(f"Decoding error: {e}")
         
         if not response.startswith("OK:"):
             raise Exception(f"Unexpected response: {response}")
