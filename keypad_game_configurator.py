@@ -231,10 +231,11 @@ class KeypadGameConfigurator:
             raise Exception("Not connected to Arduino")
         print("sending :",command)
         self.serial_port.write(f"{command}\n".encode('utf-8'))
-        time.sleep(1)  # Give Arduino time to process
+        time.sleep(2)  # Give Arduino time to process
         
         raw_response = self.serial_port.readline()
-        print(f"Raw response bytes: {raw_response}")
+        response = self.serial_port.readall()
+        print(f"Raw response bytes: {raw_response}{response}")
         
         try:
             response = raw_response.decode('utf-8').strip()
