@@ -84,8 +84,8 @@ void setup()
     {
         lcd.clear();
         lcd.print("MP3 Error!");
-        while (true)
-            ;
+        // while (true)
+        //     ;
     }
     myDFPlayer.volume(25); // Set volume (0-30)
 
@@ -126,6 +126,8 @@ void loop()
     if (Serial.available() > 0)
     {
         processSerialCommand();
+        //Serial.write("OK\n");
+        //Serial.println("OK");
     }
 
     // Check if start button is pressed
@@ -650,9 +652,19 @@ void loadGameConfig()
 // Process commands received from the PC
 void processSerialCommand()
 {
-    String command = Serial.readStringUntil('\n');
+     String command = Serial.readStringUntil('\n');
+    // String command = "";
+    // while (Serial.available() > 0)
+    // {
+    //     // Read the incoming command until newline character
+    //     // command = Serial.readStringUntil('\n');
+    //     // command.trim(); // Remove any whitespace
+    //     command += char(Serial.read());
+    //     if (Serial.read() == '\n')
+    //         break;
+    // }
     delay(500);
-    Serial.write("OK\n");
+   // Serial.write("OK\n");
 
     if (command.startsWith("SET:"))
     {
