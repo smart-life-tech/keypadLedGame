@@ -1,0 +1,82 @@
+[
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "C:\\Users\\USER\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.6\\cores\\arduino"
+  },
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "C:\\Users\\USER\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.6\\variants\\mega"
+  },
+  {
+    "Sourcefile": "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\output\\sketch\\keypadLedGame.ino.cpp",
+    "Include": "EEPROM.h",
+    "Includepath": "C:\\Users\\USER\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.6\\libraries\\EEPROM\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\output\\sketch\\keypadLedGame.ino.cpp",
+    "Include": "Wire.h",
+    "Includepath": "C:\\Users\\USER\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.6\\libraries\\Wire\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\output\\sketch\\keypadLedGame.ino.cpp",
+    "Include": "LiquidCrystal_I2C.h",
+    "Includepath": "C:\\Users\\USER\\Documents\\Arduino\\libraries\\LiquidCrystal_I2C"
+  },
+  {
+    "Sourcefile": "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\output\\sketch\\keypadLedGame.ino.cpp",
+    "Include": "Keypad.h",
+    "Includepath": "C:\\Users\\USER\\Documents\\Arduino\\libraries\\Keypad"
+  },
+  {
+    "Sourcefile": "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\output\\sketch\\keypadLedGame.ino.cpp",
+    "Include": "DFRobotDFPlayerMini.h",
+    "Includepath": "C:\\Users\\USER\\Documents\\Arduino\\libraries\\DFRobotDFPlayerMini-master"
+  },
+  {
+    "Sourcefile": "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\output\\sketch\\keypadLedGame.ino.cpp",
+    "Include": "SoftwareSerial.h",
+    "Includepath": "C:\\Users\\USER\\Documents\\Arduino\\libraries\\SoftwareSerial\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\output\\sketch\\keypadLedGame.ino.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\USER\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.6\\libraries\\Wire\\src\\Wire.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\USER\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.6\\libraries\\Wire\\src\\utility\\twi.c",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\USER\\Documents\\Arduino\\libraries\\LiquidCrystal_I2C\\LiquidCrystal_I2C.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\USER\\Documents\\Arduino\\libraries\\Keypad\\Keypad.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\USER\\Documents\\Arduino\\libraries\\Keypad\\utility\\Key.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\USER\\Documents\\Arduino\\libraries\\DFRobotDFPlayerMini-master\\DFRobotDFPlayerMini.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\USER\\Documents\\Arduino\\libraries\\SoftwareSerial\\src\\SoftwareSerial.cpp",
+    "Include": "",
+    "Includepath": null
+  }
+]
