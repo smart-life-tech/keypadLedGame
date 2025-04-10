@@ -67,6 +67,13 @@ bool potSequenceCompleted = false;
 bool jackSequenceCompleted = false;
 bool keypadSequenceCompleted = false;
 
+// Add these variables to store custom messages
+char gameStartMsg[33] = "Game Started! Good luck!";
+char sequenceCorrectMsg[33] = "Well done!";
+char sequenceWrongMsg[33] = "Try again!";
+char gameVictoryMsg[33] = "Victory! All tasks done!";
+char gameDefeatMsg[33] = "Game Over! Time's up!";
+// Function prototypes
 void setup()
 {
     Serial.begin(9600);
@@ -127,8 +134,8 @@ void loop()
     if (Serial.available() > 0)
     {
         processSerialCommand();
-        //Serial.write("OK\n");
-        //Serial.println("OK");
+        // Serial.write("OK\n");
+        // Serial.println("OK");
     }
 
     // Check if start button is pressed
@@ -183,9 +190,9 @@ void startGame()
 
     // Display game start message
     lcd.clear();
-    lcd.print("Game Started!");
+    lcd.print(gameStartMsg);
     lcd.setCursor(0, 1);
-    lcd.print("Good luck!");
+    lcd.print("Press START");
 
     // Play start audio
     myDFPlayer.play(1); // Assuming 1 is the start audio file
@@ -204,14 +211,14 @@ void endGame(bool victory)
     lcd.clear();
     if (victory)
     {
-        lcd.print("Victory!");
+        lcd.print(gameVictoryMsg);
         lcd.setCursor(0, 1);
         lcd.print("All tasks done!");
         myDFPlayer.play(2); // Victory audio
     }
     else
     {
-        lcd.print("Game Over!");
+        lcd.print(gameDefeatMsg);
         lcd.setCursor(0, 1);
         lcd.print("Time's up!");
         myDFPlayer.play(3); // Defeat audio
@@ -246,52 +253,95 @@ void processKeypadInput(char key)
 {
     static char currentSequence[20] = "";
     static int sequenceIndex = 0;
+    static bool sequenceStarted = false;
 
-    // Add key to current sequence
-    if (sequenceIndex < 19)
-    { // Leave room for null terminator
-        currentSequence[sequenceIndex++] = key;
-        currentSequence[sequenceIndex] = '\0';
-    }
-
-    // Check for sequence confirmation keys
-    if (key == '*' && !switchSequenceCompleted)
+    // Check if this is a sequence start marker
+    if (key == '*' && !sequenceStarted)
     {
-        checkSwitchSequence();
+        sequenceStarted = true;
         sequenceIndex = 0;
         currentSequence[0] = '\0';
+        lcd.clear();
+        lcd.print("Sequence started");
+        lcd.setCursor(0, 1);
+        lcd.print("End with * key");
+        return;
     }
-    else if (key == '#' || key == 'A' || key == 'B' || key == 'C')
+
+    // Check if this is a sequence end marker
+    if (key == '*' && sequenceStarted)
     {
-        // These keys might be part of a sequence, so we wait for more input
-        if (sequenceIndex >= 3)
+        sequenceStarted = false;
+
+        // Evaluate the sequence based on what's currently being tested
+        if (!switchSequenceCompleted)
         {
-            // Check if we have a complete sequence with start and end markers
-            if (currentSequence[0] == '#' && currentSequence[sequenceIndex - 1] == '#' && !buttonSequenceCompleted)
-            {
-                checkButtonSequence(currentSequence, sequenceIndex);
-                sequenceIndex = 0;
-                currentSequence[0] = '\0';
-            }
-            else if (currentSequence[0] == 'A' && currentSequence[sequenceIndex - 1] == 'A' && !keypadSequenceCompleted)
-            {
-                checkKeypadSequence(currentSequence, sequenceIndex);
-                sequenceIndex = 0;
-                currentSequence[0] = '\0';
-            }
-            else if (currentSequence[0] == 'B' && currentSequence[sequenceIndex - 1] == 'B' && !potSequenceCompleted)
-            {
-                checkPotSequence();
-                sequenceIndex = 0;
-                currentSequence[0] = '\0';
-            }
-            else if (currentSequence[0] == 'C' && currentSequence[sequenceIndex - 1] == 'C' && !jackSequenceCompleted)
-            {
-                checkJackConnections();
-                sequenceIndex = 0;
-                currentSequence[0] = '\0';
+            checkSwitchSequence();
+        }
+        else if (!buttonSequenceCompleted)
+        {
+            checkButtonSequence();
+        }
+        else if (!potSequenceCompleted)
+        {
+            checkPotSequence();
+        }
+        else if (!jackSequenceCompleted)
+        {
+            checkJackConnections();
+        }
+        else if (!keypadSequenceCompleted && sequenceIndex > 0)
+        {
+            // For keypad code, we need to evaluate the entered sequence
+            currentSequence[sequenceIndex] = '\0';
+            checkKeypadCode(currentSequence);
+        }
+
+        sequenceIndex = 0;
+        currentSequence[0] = '\0';
+        return;
+    }
+
+    // If a sequence has been started, record the key presses
+    if (sequenceStarted && key != '*')
+    {
+        // Only for keypad code we need to record the sequence
+        if (!switchSequenceCompleted && !buttonSequenceCompleted &&
+            !potSequenceCompleted && !jackSequenceCompleted && !keypadSequenceCompleted)
+        {
+            if (sequenceIndex < 19)
+            { // Leave room for null terminator
+                currentSequence[sequenceIndex++] = key;
+                currentSequence[sequenceIndex] = '\0';
+
+                // Show the entered sequence on the LCD
+                lcd.clear();
+                lcd.print("Enter code:");
+                lcd.setCursor(0, 1);
+                lcd.print(currentSequence);
             }
         }
+    }
+}
+
+// New function to check keypad code
+void checkKeypadCode(char *enteredCode)
+{
+    // Check against the correct code
+    if (strcmp(enteredCode, keypadCode) == 0)
+    {
+        keypadSequenceCompleted = true;
+        completedSequences++;
+        showSuccessMessage("Keypad code correct!");
+        digitalWrite(GREEN_LED, 0x1);
+        myDFPlayer.play(4); // Success audio
+    }
+    else
+    {
+        showFailureMessage("Keypad code wrong!");
+        flashRedLed();
+        myDFPlayer.play(5); // Failure audio
+        applyPenalty();
     }
 }
 
@@ -327,24 +377,17 @@ void checkSwitchSequence()
     }
 }
 
-void checkButtonSequence(char *sequence, int length)
+void checkButtonSequence()
 {
-    // Extract the button sequence from the input (remove the # markers)
-    char buttonInput[10] = "";
-    int buttonInputIndex = 0;
-
-    for (int i = 1; i < length - 1; i++)
-    {
-        buttonInput[buttonInputIndex++] = sequence[i];
-    }
-    buttonInput[buttonInputIndex] = '\0';
-
-    // Convert to integers and check against the correct sequence
+    // Implementation that doesn't require parameters
+    // This would need to directly check the button states
     bool correct = true;
+
+    // Check if buttons match the expected sequence
     for (int i = 0; i < 6; i++)
     {
-        int buttonNum = buttonInput[i] - '0';
-        if (buttonNum != buttonSequence[i])
+        int buttonState = digitalRead(BUTTON_PINS[i]) == 0x0 ? 1 : 0;
+        if (buttonState != (buttonSequence[i] == i + 1 ? 1 : 0))
         {
             correct = false;
             break;
@@ -524,25 +567,25 @@ void checkJackConnections()
     }
 }
 
-void showSuccessMessage(const char *message)
+void showSuccessMessage(const char *specificMessage)
 {
     lcd.clear();
-    lcd.print(message);
+    lcd.print(specificMessage);
     lcd.setCursor(0, 1);
-    lcd.print("Well done!");
+    lcd.print(sequenceCorrectMsg);
 
-    // Message will be visible for 10 seconds
+    // Message will be visible for a few seconds
     lastDisplayUpdate = millis() - 990; // Force update in next cycle
 }
 
-void showFailureMessage(const char *message)
+void showFailureMessage(const char *specificMessage)
 {
     lcd.clear();
-    lcd.print(message);
+    lcd.print(specificMessage);
     lcd.setCursor(0, 1);
-    lcd.print("Try again!");
+    lcd.print(sequenceWrongMsg);
 
-    // Message will be visible for 10 seconds
+    // Message will be visible for a few seconds
     lastDisplayUpdate = millis() - 990; // Force update in next cycle
 }
 
@@ -603,6 +646,28 @@ void saveGameConfig()
     {
         EEPROM.write(addr++, keypadCode[i]);
     }
+
+    // Save custom messages
+    for (int i = 0; i < 33; i++)
+    {
+        EEPROM.write(addr++, gameStartMsg[i]);
+    }
+    for (int i = 0; i < 33; i++)
+    {
+        EEPROM.write(addr++, sequenceCorrectMsg[i]);
+    }
+    for (int i = 0; i < 33; i++)
+    {
+        EEPROM.write(addr++, sequenceWrongMsg[i]);
+    }
+    for (int i = 0; i < 33; i++)
+    {
+        EEPROM.write(addr++, gameVictoryMsg[i]);
+    }
+    for (int i = 0; i < 33; i++)
+    {
+        EEPROM.write(addr++, gameDefeatMsg[i]);
+    }
 }
 
 void loadGameConfig()
@@ -648,12 +713,34 @@ void loadGameConfig()
     {
         keypadCode[i] = EEPROM.read(addr++);
     }
+
+    // Load custom messages
+    for (int i = 0; i < 33; i++)
+    {
+        gameStartMsg[i] = EEPROM.read(addr++);
+    }
+    for (int i = 0; i < 33; i++)
+    {
+        sequenceCorrectMsg[i] = EEPROM.read(addr++);
+    }
+    for (int i = 0; i < 33; i++)
+    {
+        sequenceWrongMsg[i] = EEPROM.read(addr++);
+    }
+    for (int i = 0; i < 33; i++)
+    {
+        gameVictoryMsg[i] = EEPROM.read(addr++);
+    }
+    for (int i = 0; i < 33; i++)
+    {
+        gameDefeatMsg[i] = EEPROM.read(addr++);
+    }
 }
 
 // Process commands received from the PC
 void processSerialCommand()
 {
-     String command = Serial.readStringUntil('\n');
+    String command = Serial.readStringUntil('\n');
     // String command = "";
     // while (Serial.available() > 0)
     // {
@@ -665,7 +752,7 @@ void processSerialCommand()
     //         break;
     // }
     delay(500);
-   // Serial.write("OK\n");
+    // Serial.write("OK\n");
 
     if (command.startsWith("SET:"))
     {
@@ -785,6 +872,41 @@ void processSerialCommand()
             saveGameConfig();
             Serial.println("OK:SAVE");
         }
+        else if (command.startsWith("MSG:"))
+        {
+            command = command.substring(4); // Remove "MSG:"
+
+            if (command.startsWith("START:"))
+            {
+                String msg = command.substring(6);
+                msg.toCharArray(gameStartMsg, 33);
+                Serial.println("OK:MSG:START");
+            }
+            else if (command.startsWith("CORRECT:"))
+            {
+                String msg = command.substring(8);
+                msg.toCharArray(sequenceCorrectMsg, 33);
+                Serial.println("OK:MSG:CORRECT");
+            }
+            else if (command.startsWith("WRONG:"))
+            {
+                String msg = command.substring(6);
+                msg.toCharArray(sequenceWrongMsg, 33);
+                Serial.println("OK:MSG:WRONG");
+            }
+            else if (command.startsWith("VICTORY:"))
+            {
+                String msg = command.substring(8);
+                msg.toCharArray(gameVictoryMsg, 33);
+                Serial.println("OK:MSG:VICTORY");
+            }
+            else if (command.startsWith("DEFEAT:"))
+            {
+                String msg = command.substring(7);
+                msg.toCharArray(gameDefeatMsg, 33);
+                Serial.println("OK:MSG:DEFEAT");
+            }
+        }
     }
     else if (command == "GET:CONFIG")
     {
@@ -831,6 +953,21 @@ void processSerialCommand()
 
         Serial.print("CONFIG:KEYCODE:");
         Serial.println(keypadCode);
+
+        Serial.print("CONFIG:MSG:START:");
+        Serial.println(gameStartMsg);
+
+        Serial.print("CONFIG:MSG:CORRECT:");
+        Serial.println(sequenceCorrectMsg);
+
+        Serial.print("CONFIG:MSG:WRONG:");
+        Serial.println(sequenceWrongMsg);
+
+        Serial.print("CONFIG:MSG:VICTORY:");
+        Serial.println(gameVictoryMsg);
+
+        Serial.print("CONFIG:MSG:DEFEAT:");
+        Serial.println(gameDefeatMsg);
     }
     else if (command == "RESET")
     {

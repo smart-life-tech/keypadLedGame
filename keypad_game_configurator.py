@@ -31,7 +31,12 @@ class KeypadGameConfigurator:
         # Create main frame
         main_frame = ttk.Frame(root, padding="10")
         main_frame.pack(fill=tk.BOTH, expand=True)
-        
+         # Create variables for messages
+        self.game_start_msg = tk.StringVar(value="Game Started! Good luck!")
+        self.sequence_correct_msg = tk.StringVar(value="Well done!")
+        self.sequence_wrong_msg = tk.StringVar(value="Try again!")
+        self.game_victory_msg = tk.StringVar(value="Victory! All tasks done!")
+        self.game_defeat_msg = tk.StringVar(value="Game Over! Time's up!")
         # Create connection frame
         connection_frame = ttk.LabelFrame(main_frame, text="Arduino Connection", padding="10")
         connection_frame.pack(fill=tk.X, pady=5)
@@ -57,6 +62,7 @@ class KeypadGameConfigurator:
         self.create_pots_tab()
         self.create_jacks_tab()
         self.create_keypad_tab()
+        self.create_messages_tab()
         
         # Create bottom frame for save/load/send buttons
         bottom_frame = ttk.Frame(main_frame)
@@ -163,6 +169,13 @@ class KeypadGameConfigurator:
             self.mp3_success_var.set(config.get('mp3_success', ''))
             self.mp3_failure_var.set(config.get('mp3_failure', ''))
             
+            # Load custom messages
+            self.game_start_msg.set(config.get('game_start_msg', 'Game Started! Good luck!'))
+            self.sequence_correct_msg.set(config.get('sequence_correct_msg', 'Well done!'))
+            self.sequence_wrong_msg.set(config.get('sequence_wrong_msg', 'Try again!'))
+            self.game_victory_msg.set(config.get('game_victory_msg', 'Victory! All tasks done!'))
+            self.game_defeat_msg.set(config.get('game_defeat_msg', 'Game Over! Time\'s up!'))
+            
             messagebox.showinfo("Load Configuration", "Configuration loaded successfully")
         except Exception as e:
             messagebox.showerror("Load Error", f"Failed to load configuration: {str(e)}")
@@ -189,7 +202,12 @@ class KeypadGameConfigurator:
                 'mp3_victory': self.mp3_victory_var.get(),
                 'mp3_defeat': self.mp3_defeat_var.get(),
                 'mp3_success': self.mp3_success_var.get(),
-                'mp3_failure': self.mp3_failure_var.get()
+                'mp3_failure': self.mp3_failure_var.get(),
+                'game_start_msg': self.game_start_msg.get(),
+                'sequence_correct_msg': self.sequence_correct_msg.get(),
+                'sequence_wrong_msg': self.sequence_wrong_msg.get(),
+                'game_victory_msg': self.game_victory_msg.get(),
+                'game_defeat_msg': self.game_defeat_msg.get()
             }
             
             with open(filename, 'w') as f:
@@ -226,6 +244,7 @@ class KeypadGameConfigurator:
         messagebox.showinfo("Disconnection", "Disconnected from Arduino")
 
     def send_command(self, command):
+        print(command)
         """Send a command to the Arduino and wait for response"""
         if not self.serial_port or not self.serial_port.is_open:
             raise Exception("Not connected to Arduino")
@@ -310,6 +329,13 @@ class KeypadGameConfigurator:
             # Send keypad code
             self.send_command(f"SET:KEYCODE:{self.keypad_var.get()}")
             
+            # # Send custom messages
+            # self.send_command(f"MSG:START:{self.game_start_msg.get()}")
+            # self.send_command(f"MSG:CORRECT:{self.sequence_correct_msg.get()}")
+            # self.send_command(f"MSG:WRONG:{self.sequence_wrong_msg.get()}")
+            # self.send_command(f"MSG:VICTORY:{self.game_victory_msg.get()}")
+            # self.send_command(f"MSG:DEFEAT:{self.game_defeat_msg.get()}")
+            
             # Save configuration to EEPROM
             self.send_command("SET:SAVE")
             
@@ -329,7 +355,7 @@ class KeypadGameConfigurator:
             
             # Read responses
             config_data = {}
-            for _ in range(7):  # Expect 7 configuration lines
+            for _ in range(12):  # Increased from 7 to 12 to include the 5 new message configs
                 response = self.serial_port.readline().decode('utf-8').strip()
                 if response.startswith("CONFIG:"):
                     parts = response[7:].split(":", 1)
@@ -369,6 +395,22 @@ class KeypadGameConfigurator:
             
             if 'KEYCODE' in config_data:
                 self.keypad_var.set(config_data['KEYCODE'])
+            
+            # Update message fields
+            if 'MSG:START' in config_data:
+                self.game_start_msg.set(config_data['MSG:START'])
+            
+            if 'MSG:CORRECT' in config_data:
+                self.sequence_correct_msg.set(config_data['MSG:CORRECT'])
+            
+            if 'MSG:WRONG' in config_data:
+                self.sequence_wrong_msg.set(config_data['MSG:WRONG'])
+            
+            if 'MSG:VICTORY' in config_data:
+                self.game_victory_msg.set(config_data['MSG:VICTORY'])
+            
+            if 'MSG:DEFEAT' in config_data:
+                self.game_defeat_msg.set(config_data['MSG:DEFEAT'])
             
             messagebox.showinfo("Configuration", "Configuration retrieved from Arduino successfully")
         except Exception as e:
@@ -448,23 +490,25 @@ class KeypadGameConfigurator:
         pots_frame = ttk.Frame(self.notebook, padding="10")
         self.notebook.add(pots_frame, text="Potentiometers")
         
-        ttk.Label(pots_frame, text="Set the correct potentiometer values (0-1023):").grid(row=0, column=0, columnspan=6, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(pots_frame, text="Set the correct potentiometer values (0-100, in steps of 10):").grid(row=0, column=0, columnspan=6, sticky=tk.W, padx=5, pady=5)
         
         self.pot_vars = []
+        valid_values = [str(i) for i in range(0, 101, 10)]  # 0, 10, 20, ..., 100
+        
         for i in range(6):
             var = tk.StringVar()
             self.pot_vars.append(var)
             ttk.Label(pots_frame, text=f"Pot {i+1}:").grid(row=1, column=i, padx=5, pady=5)
-            ttk.Entry(pots_frame, textvariable=var, width=6).grid(row=2, column=i, padx=5, pady=5)
+            ttk.Combobox(pots_frame, textvariable=var, values=valid_values, width=6).grid(row=2, column=i, padx=5, pady=5)
         
         # Add a slider for visual representation and easier setting
         ttk.Label(pots_frame, text="Visual Slider (updates entry above):").grid(row=3, column=0, columnspan=6, sticky=tk.W, padx=5, pady=10)
         
         for i in range(6):
-            slider = ttk.Scale(pots_frame, from_=0, to=1023, orient=tk.HORIZONTAL, length=100)
+            slider = ttk.Scale(pots_frame, from_=0, to=100, orient=tk.HORIZONTAL, length=100)
             slider.grid(row=4, column=i, padx=5, pady=5)
-            # Link slider to entry
-            slider.config(command=lambda value, idx=i: self.pot_vars[idx].set(str(int(float(value)))))
+            # Link slider to entry with snapping to valid values
+            slider.config(command=lambda value, idx=i: self.pot_vars[idx].set(str(int(float(value) / 10) * 10)))
 
     def create_jacks_tab(self):
         jacks_frame = ttk.Frame(self.notebook, padding="10")
@@ -514,6 +558,30 @@ class KeypadGameConfigurator:
         ttk.Button(keypad_visual_frame, text="Clear", 
                   command=lambda: self.keypad_var.set("")
                   ).grid(row=4, column=0, columnspan=4, pady=5)
+
+    def create_messages_tab(self):
+        messages_frame = ttk.Frame(self.notebook, padding="10")
+        self.notebook.add(messages_frame, text="Messages")
+        
+        # Create entry fields for each message
+        ttk.Label(messages_frame, text="Game Start Message:").grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
+        ttk.Entry(messages_frame, textvariable=self.game_start_msg, width=40).grid(row=0, column=1, padx=5, pady=5)
+        
+        ttk.Label(messages_frame, text="Sequence Correct Message:").grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
+        ttk.Entry(messages_frame, textvariable=self.sequence_correct_msg, width=40).grid(row=1, column=1, padx=5, pady=5)
+        
+        ttk.Label(messages_frame, text="Sequence Wrong Message:").grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
+        ttk.Entry(messages_frame, textvariable=self.sequence_wrong_msg, width=40).grid(row=2, column=1, padx=5, pady=5)
+        
+        ttk.Label(messages_frame, text="Game Victory Message:").grid(row=3, column=0, sticky=tk.W, padx=5, pady=5)
+        ttk.Entry(messages_frame, textvariable=self.game_victory_msg, width=40).grid(row=3, column=1, padx=5, pady=5)
+        
+        ttk.Label(messages_frame, text="Game Defeat Message:").grid(row=4, column=0, sticky=tk.W, padx=5, pady=5)
+        ttk.Entry(messages_frame, textvariable=self.game_defeat_msg, width=40).grid(row=4, column=1, padx=5, pady=5)
+        
+        # Add these to the save/load functions
+        ttk.Label(messages_frame, text="Note: Messages are limited to 16 characters per line (LCD constraint)").grid(
+            row=5, column=0, columnspan=2, sticky=tk.W, padx=5, pady=10)
 
 if __name__ == "__main__":
     root = tk.Tk()
