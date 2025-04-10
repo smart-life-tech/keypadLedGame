@@ -41,7 +41,7 @@ const int BUTTON_PINS[6] = {34, 36, 38, 40, 42, 44};
 // Potentiometer pins
 const int POT_PINS[6] = {A1, A2, A3, A4, A5, A6};
 
-// Jack connection pins (using digital pins to detect connections)
+// Jack connection pins (using digital and analogs pins to detect connections)
 const int JACK_PINS[16] = {46, 47, 48, 49, 50, 51, 52, 53, A7, A8, A9, A10, A11, A12, A13, A14};
 
 // Game state variables
