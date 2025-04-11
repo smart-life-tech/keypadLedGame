@@ -23,7 +23,7 @@ char keys[ROWS][COLS] = {
     {'*', '0', '#', 'D'}};
 // Updated pin assignments for keypad
 byte rowPins[ROWS] = {A8, A9, A10, A11}; // Connect to the row pinouts of the keypad
-byte colPins[COLS] = {8, 9, 12, 13};    // Connect to the column pinouts of the keypad
+byte colPins[COLS] = {8, 9, 12, 13};     // Connect to the column pinouts of the keypad
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
 // LED pins - updated
@@ -80,7 +80,7 @@ void setup()
 {
     Serial.begin(9600);
     Serial1.begin(9600);
-    
+
     // Initialize display
     Wire.begin();
     lcd.init();
@@ -89,7 +89,7 @@ void setup()
     lcd.print("Keypad LED Game");
     lcd.setCursor(0, 1);
     lcd.print("Press START");
-
+    delay(1000);
     // Initialize MP3 player
     if (!myDFPlayer.begin(Serial1))
     {
@@ -99,10 +99,11 @@ void setup()
     myDFPlayer.volume(25); // Set volume (0-30)
 
     // Initialize LEDs
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++)
+    {
         pinMode(GREEN_LEDS[i], OUTPUT);
         digitalWrite(GREEN_LEDS[i], LOW);
-        
+
         pinMode(RED_LEDS[i], OUTPUT);
         digitalWrite(RED_LEDS[i], LOW);
     }
@@ -217,9 +218,10 @@ void endGame(bool victory)
         lcd.setCursor(0, 1);
         lcd.print("All tasks done!");
         myDFPlayer.play(2); // Victory audio
-        
+
         // Turn on all green LEDs
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++)
+        {
             digitalWrite(GREEN_LEDS[i], HIGH);
         }
     }
@@ -229,9 +231,10 @@ void endGame(bool victory)
         lcd.setCursor(0, 1);
         lcd.print("Time's up!");
         myDFPlayer.play(3); // Defeat audio
-        
+
         // Turn on all red LEDs
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++)
+        {
             digitalWrite(RED_LEDS[i], HIGH);
         }
     }
@@ -342,12 +345,13 @@ void checkKeypadCode(char *enteredCode)
         keypadSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Keypad code correct!");
-        
+
         // Light up a green LED based on completed sequences
-        if (completedSequences <= 5) {
-            digitalWrite(GREEN_LEDS[completedSequences-1], HIGH);
+        if (completedSequences <= 5)
+        {
+            digitalWrite(GREEN_LEDS[completedSequences - 1], HIGH);
         }
-        
+
         myDFPlayer.play(4); // Success audio
     }
     else
@@ -379,12 +383,13 @@ void checkSwitchSequence()
         switchSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Switches correct!");
-        
+
         // Light up a green LED based on completed sequences
-        if (completedSequences <= 5) {
-            digitalWrite(GREEN_LEDS[completedSequences-1], HIGH);
+        if (completedSequences <= 5)
+        {
+            digitalWrite(GREEN_LEDS[completedSequences - 1], HIGH);
         }
-        
+
         myDFPlayer.play(4); // Success audio
     }
     else
@@ -418,12 +423,13 @@ void checkButtonSequence()
         buttonSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Button seq correct!");
-        
+
         // Light up a green LED based on completed sequences
-        if (completedSequences <= 5) {
-            digitalWrite(GREEN_LEDS[completedSequences-1], HIGH);
+        if (completedSequences <= 5)
+        {
+            digitalWrite(GREEN_LEDS[completedSequences - 1], HIGH);
         }
-        
+
         myDFPlayer.play(4); // Success audio
     }
     else
@@ -453,12 +459,13 @@ void checkKeypadSequence(char *sequence, int length)
         keypadSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Keypad code correct!");
-        
+
         // Light up a green LED based on completed sequences
-        if (completedSequences <= 5) {
-            digitalWrite(GREEN_LEDS[completedSequences-1], HIGH);
+        if (completedSequences <= 5)
+        {
+            digitalWrite(GREEN_LEDS[completedSequences - 1], HIGH);
         }
-        
+
         myDFPlayer.play(4); // Success audio
     }
     else
@@ -492,12 +499,13 @@ void checkPotSequence()
         potSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Potentiometers OK!");
-        
+
         // Light up a green LED based on completed sequences
-        if (completedSequences <= 5) {
-            digitalWrite(GREEN_LEDS[completedSequences-1], HIGH);
+        if (completedSequences <= 5)
+        {
+            digitalWrite(GREEN_LEDS[completedSequences - 1], HIGH);
         }
-        
+
         myDFPlayer.play(4); // Success audio
     }
     else
@@ -589,12 +597,13 @@ void checkJackConnections()
         jackSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Jack connections OK!");
-        
+
         // Light up a green LED based on completed sequences
-        if (completedSequences <= 5) {
-            digitalWrite(GREEN_LEDS[completedSequences-1], HIGH);
+        if (completedSequences <= 5)
+        {
+            digitalWrite(GREEN_LEDS[completedSequences - 1], HIGH);
         }
-        
+
         myDFPlayer.play(4); // Success audio
     }
     else
@@ -631,11 +640,13 @@ void showFailureMessage(const char *specificMessage)
 void flashRedLeds()
 {
     // Flash all red LEDs
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++)
+    {
         digitalWrite(RED_LEDS[i], HIGH);
     }
     delay(500);
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++)
+    {
         digitalWrite(RED_LEDS[i], LOW);
     }
 }
@@ -1007,13 +1018,14 @@ void processSerialCommand()
         // Reset the game
         gameStarted = false;
         gameEnded = false;
-        
+
         // Turn off all LEDs
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++)
+        {
             digitalWrite(GREEN_LEDS[i], LOW);
             digitalWrite(RED_LEDS[i], LOW);
         }
-        
+
         lcd.clear();
         lcd.print("Keypad LED Game");
         lcd.setCursor(0, 1);
