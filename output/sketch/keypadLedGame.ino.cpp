@@ -78,6 +78,45 @@ char gameVictoryMsg[33] = "Victory! All tasks done!";
 char gameDefeatMsg[33] = "Game Over! Time's up!";
 
 // Function prototypes
+#line 79 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void setup();
+#line 135 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void loop();
+#line 180 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void startGame();
+#line 209 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void endGame(bool victory);
+#line 240 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void updateCountdownDisplay();
+#line 261 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void processKeypadInput(char key);
+#line 337 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void checkKeypadCode(char *enteredCode);
+#line 362 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void checkSwitchSequence();
+#line 399 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void checkButtonSequence();
+#line 438 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void checkKeypadSequence(char *sequence, int length);
+#line 473 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void checkPotSequence();
+#line 512 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void checkJackConnections();
+#line 609 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void showSuccessMessage(const char *specificMessage);
+#line 620 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void showFailureMessage(const char *specificMessage);
+#line 631 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void flashRedLeds();
+#line 643 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void applyPenalty();
+#line 650 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void saveGameConfig();
+#line 717 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void loadGameConfig();
+#line 785 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+void processSerialCommand();
+#line 79 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void setup()
 {
     Serial.begin(9600);

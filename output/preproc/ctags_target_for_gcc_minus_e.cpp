@@ -10,7 +10,8 @@
 LiquidCrystal_I2C lcd(0x27, 16, 2); // I2C address 0x27, 16 column and 2 rows
 
 // MP3 Player setup
-SoftwareSerial mySoftwareSerial(10, 11); // RX, TX
+// SoftwareSerial mySoftwareSerial(10, 11); // Old RX, TX
+// Using hardware Serial1 pins 18, 19
 DFRobotDFPlayerMini myDFPlayer;
 
 // Keypad setup
@@ -21,28 +22,29 @@ char keys[ROWS][COLS] = {
     {'4', '5', '6', 'B'},
     {'7', '8', '9', 'C'},
     {'*', '0', '#', 'D'}};
-byte rowPins[ROWS] = {9, 8, 7, 6}; // Connect to the row pinouts of the keypad
-byte colPins[COLS] = {5, 4, 3, 2}; // Connect to the column pinouts of the keypad
+// Updated pin assignments for keypad
+byte rowPins[ROWS] = {A8, A9, A10, A11}; // Connect to the row pinouts of the keypad
+byte colPins[COLS] = {8, 9, 12, 13}; // Connect to the column pinouts of the keypad
 Keypad keypad = Keypad(((char*)keys), rowPins, colPins, ROWS, COLS);
 
-// LED pins
-const int GREEN_LED = 12;
-const int RED_LED = 13;
+// LED pins - updated
+const int GREEN_LEDS[5] = {50, 51, 52, 53, A6};
+const int RED_LEDS[5] = {28, 29, 37, 40, 49};
 
-// Start button pin
-const int START_BUTTON = A0;
+// Start button pin - updated
+const int START_BUTTON = 39;
 
-// Switch pins
-const int SWITCH_PINS[6] = {22, 24, 26, 28, 30, 32};
+// Switch pins - updated
+const int SWITCH_PINS[6] = {22, 23, 24, 25, 26, 27};
 
-// Button pins (separate from keypad)
-const int BUTTON_PINS[6] = {34, 36, 38, 40, 42, 44};
+// Button pins - updated
+const int BUTTON_PINS[6] = {2, 3, 4, 5, 6, 7};
 
-// Potentiometer pins
-const int POT_PINS[6] = {A1, A2, A3, A4, A5, A6};
+// Potentiometer pins - updated
+const int POT_PINS[6] = {A0, A1, A2, A3, A4, A5};
 
-// Jack connection pins (using digital and analogs pins to detect connections)
-const int JACK_PINS[16] = {46, 47, 48, 49, 50, 51, 52, 53, A7, A8, A9, A10, A11, A12, A13, A14};
+// Jack connection pins - updated
+const int JACK_PINS[16] = {30, 31, 32, 33, 34, 35, 36, 37, 41, 42, 43, 44, 45, 46, 47, 48};
 
 // Game state variables
 bool gameStarted = false;
@@ -73,12 +75,15 @@ char sequenceCorrectMsg[33] = "Well done!";
 char sequenceWrongMsg[33] = "Try again!";
 char gameVictoryMsg[33] = "Victory! All tasks done!";
 char gameDefeatMsg[33] = "Game Over! Time's up!";
+
 // Function prototypes
 void setup()
 {
     Serial.begin(9600);
     Serial1.begin(9600);
+
     // Initialize display
+    Wire.begin();
     lcd.init();
     lcd.backlight();
     lcd.clear();
@@ -87,22 +92,21 @@ void setup()
     lcd.print("Press START");
 
     // Initialize MP3 player
-    mySoftwareSerial.begin(9600);
-    // if (!myDFPlayer.begin(mySoftwareSerial))
     if (!myDFPlayer.begin(Serial1))
     {
         lcd.clear();
         lcd.print("MP3 Error!");
-        // while (true)
-        //     ;
     }
     myDFPlayer.volume(25); // Set volume (0-30)
 
     // Initialize LEDs
-    pinMode(GREEN_LED, 0x1);
-    pinMode(RED_LED, 0x1);
-    digitalWrite(GREEN_LED, 0x0);
-    digitalWrite(RED_LED, 0x0);
+    for (int i = 0; i < 5; i++) {
+        pinMode(GREEN_LEDS[i], 0x1);
+        digitalWrite(GREEN_LEDS[i], 0x0);
+
+        pinMode(RED_LEDS[i], 0x1);
+        digitalWrite(RED_LEDS[i], 0x0);
+    }
 
     // Initialize start button
     pinMode(START_BUTTON, 0x2);
@@ -135,8 +139,6 @@ void loop()
     if (Serial.available() > 0)
     {
         processSerialCommand();
-        // Serial.write("OK\n");
-        // Serial.println("OK");
     }
 
     // Check if start button is pressed
@@ -216,6 +218,11 @@ void endGame(bool victory)
         lcd.setCursor(0, 1);
         lcd.print("All tasks done!");
         myDFPlayer.play(2); // Victory audio
+
+        // Turn on all green LEDs
+        for (int i = 0; i < 5; i++) {
+            digitalWrite(GREEN_LEDS[i], 0x1);
+        }
     }
     else
     {
@@ -223,10 +230,12 @@ void endGame(bool victory)
         lcd.setCursor(0, 1);
         lcd.print("Time's up!");
         myDFPlayer.play(3); // Defeat audio
-    }
 
-    // Turn off red LED, keep green LEDs on if any sequences were completed
-    digitalWrite(RED_LED, 0x0);
+        // Turn on all red LEDs
+        for (int i = 0; i < 5; i++) {
+            digitalWrite(RED_LEDS[i], 0x1);
+        }
+    }
 }
 
 void updateCountdownDisplay()
@@ -334,13 +343,18 @@ void checkKeypadCode(char *enteredCode)
         keypadSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Keypad code correct!");
-        digitalWrite(GREEN_LED, 0x1);
+
+        // Light up a green LED based on completed sequences
+        if (completedSequences <= 5) {
+            digitalWrite(GREEN_LEDS[completedSequences-1], 0x1);
+        }
+
         myDFPlayer.play(4); // Success audio
     }
     else
     {
         showFailureMessage("Keypad code wrong!");
-        flashRedLed();
+        flashRedLeds();
         myDFPlayer.play(5); // Failure audio
         applyPenalty();
     }
@@ -366,13 +380,18 @@ void checkSwitchSequence()
         switchSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Switches correct!");
-        digitalWrite(GREEN_LED, 0x1);
+
+        // Light up a green LED based on completed sequences
+        if (completedSequences <= 5) {
+            digitalWrite(GREEN_LEDS[completedSequences-1], 0x1);
+        }
+
         myDFPlayer.play(4); // Success audio
     }
     else
     {
         showFailureMessage("Switches wrong!");
-        flashRedLed();
+        flashRedLeds();
         myDFPlayer.play(5); // Failure audio
         applyPenalty();
     }
@@ -400,13 +419,18 @@ void checkButtonSequence()
         buttonSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Button seq correct!");
-        digitalWrite(GREEN_LED, 0x1);
+
+        // Light up a green LED based on completed sequences
+        if (completedSequences <= 5) {
+            digitalWrite(GREEN_LEDS[completedSequences-1], 0x1);
+        }
+
         myDFPlayer.play(4); // Success audio
     }
     else
     {
         showFailureMessage("Button seq wrong!");
-        flashRedLed();
+        flashRedLeds();
         myDFPlayer.play(5); // Failure audio
         applyPenalty();
     }
@@ -430,13 +454,18 @@ void checkKeypadSequence(char *sequence, int length)
         keypadSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Keypad code correct!");
-        digitalWrite(GREEN_LED, 0x1);
+
+        // Light up a green LED based on completed sequences
+        if (completedSequences <= 5) {
+            digitalWrite(GREEN_LEDS[completedSequences-1], 0x1);
+        }
+
         myDFPlayer.play(4); // Success audio
     }
     else
     {
         showFailureMessage("Keypad code wrong!");
-        flashRedLed();
+        flashRedLeds();
         myDFPlayer.play(5); // Failure audio
         applyPenalty();
     }
@@ -464,13 +493,18 @@ void checkPotSequence()
         potSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Potentiometers OK!");
-        digitalWrite(GREEN_LED, 0x1);
+
+        // Light up a green LED based on completed sequences
+        if (completedSequences <= 5) {
+            digitalWrite(GREEN_LEDS[completedSequences-1], 0x1);
+        }
+
         myDFPlayer.play(4); // Success audio
     }
     else
     {
         showFailureMessage("Potentiometers wrong!");
-        flashRedLed();
+        flashRedLeds();
         myDFPlayer.play(5); // Failure audio
         applyPenalty();
     }
@@ -556,13 +590,18 @@ void checkJackConnections()
         jackSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Jack connections OK!");
-        digitalWrite(GREEN_LED, 0x1);
+
+        // Light up a green LED based on completed sequences
+        if (completedSequences <= 5) {
+            digitalWrite(GREEN_LEDS[completedSequences-1], 0x1);
+        }
+
         myDFPlayer.play(4); // Success audio
     }
     else
     {
         showFailureMessage("Jack connections wrong!");
-        flashRedLed();
+        flashRedLeds();
         myDFPlayer.play(5); // Failure audio
         applyPenalty();
     }
@@ -590,11 +629,16 @@ void showFailureMessage(const char *specificMessage)
     lastDisplayUpdate = millis() - 990; // Force update in next cycle
 }
 
-void flashRedLed()
+void flashRedLeds()
 {
-    digitalWrite(RED_LED, 0x1);
+    // Flash all red LEDs
+    for (int i = 0; i < 5; i++) {
+        digitalWrite(RED_LEDS[i], 0x1);
+    }
     delay(500);
-    digitalWrite(RED_LED, 0x0);
+    for (int i = 0; i < 5; i++) {
+        digitalWrite(RED_LEDS[i], 0x0);
+    }
 }
 
 void applyPenalty()
@@ -742,18 +786,7 @@ void loadGameConfig()
 void processSerialCommand()
 {
     String command = Serial.readStringUntil('\n');
-    // String command = "";
-    // while (Serial.available() > 0)
-    // {
-    //     // Read the incoming command until newline character
-    //     // command = Serial.readStringUntil('\n');
-    //     // command.trim(); // Remove any whitespace
-    //     command += char(Serial.read());
-    //     if (Serial.read() == '\n')
-    //         break;
-    // }
     delay(500);
-    // Serial.write("OK\n");
 
     if (command.startsWith("SET:"))
     {
@@ -975,12 +1008,17 @@ void processSerialCommand()
         // Reset the game
         gameStarted = false;
         gameEnded = false;
+
+        // Turn off all LEDs
+        for (int i = 0; i < 5; i++) {
+            digitalWrite(GREEN_LEDS[i], 0x0);
+            digitalWrite(RED_LEDS[i], 0x0);
+        }
+
         lcd.clear();
         lcd.print("Keypad LED Game");
         lcd.setCursor(0, 1);
         lcd.print("Press START");
-        digitalWrite(GREEN_LED, 0x0);
-        digitalWrite(RED_LED, 0x0);
         Serial.println("OK:RESET");
     }
 }
