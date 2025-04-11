@@ -11,20 +11,20 @@
         "1"
     ],
     "buttons": [
+        "3",
+        "6",
         "1",
         "2",
-        "3",
-        "4",
-        "5",
-        "6"
+        "6",
+        "4"
     ],
     "pots": [
-        "0",
+        "50",
         "40",
-        "20",
+        "60",
         "30",
         "40",
-        "100"
+        "60"
     ],
     "jacks": [
         [
@@ -65,5 +65,10 @@
     "mp3_victory": "dd",
     "mp3_defeat": "ffdd",
     "mp3_success": "ffd",
-    "mp3_failure": "ddf"
+    "mp3_failure": "ddf",
+    "game_start_msg": "Game Started! Good luck!",
+    "sequence_correct_msg": "Well done!",
+    "sequence_wrong_msg": "Try again!",
+    "game_victory_msg": "Victory! All tasks done!",
+    "game_defeat_msg": "Game Over! Time's up!"
 }

@@ -77,47 +77,47 @@ char gameDefeatMsg[33] = "Game Over! Time's up!";
 // Function prototypes
 #line 76 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void setup();
-#line 130 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 131 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void loop();
-#line 177 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 178 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void startGame();
-#line 206 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 207 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void endGame(bool victory);
-#line 230 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 231 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void updateCountdownDisplay();
-#line 251 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 252 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void processKeypadInput(char key);
-#line 327 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 328 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkKeypadCode(char *enteredCode);
-#line 347 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 348 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkSwitchSequence();
-#line 379 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 380 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkButtonSequence();
-#line 413 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 414 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkKeypadSequence(char *sequence, int length);
-#line 443 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 444 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkPotSequence();
-#line 477 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 478 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkJackConnections();
-#line 569 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 570 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void showSuccessMessage(const char *specificMessage);
-#line 580 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 581 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void showFailureMessage(const char *specificMessage);
-#line 591 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 592 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void flashRedLed();
-#line 598 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 599 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void applyPenalty();
-#line 605 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 606 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void saveGameConfig();
-#line 672 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 673 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void loadGameConfig();
-#line 740 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 741 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void processSerialCommand();
 #line 76 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void setup()
 {
     Serial.begin(9600);
-
+    Serial1.begin(9600);
     // Initialize display
     lcd.init();
     lcd.backlight();
@@ -128,7 +128,8 @@ void setup()
 
     // Initialize MP3 player
     mySoftwareSerial.begin(9600);
-    if (!myDFPlayer.begin(mySoftwareSerial))
+    // if (!myDFPlayer.begin(mySoftwareSerial))
+    if (!myDFPlayer.begin(Serial1))
     {
         lcd.clear();
         lcd.print("MP3 Error!");
@@ -915,7 +916,7 @@ void processSerialCommand()
         else if (command.startsWith("MSG:"))
         {
             command = command.substring(4); // Remove "MSG:"
-            
+
             if (command.startsWith("START:"))
             {
                 String msg = command.substring(6);

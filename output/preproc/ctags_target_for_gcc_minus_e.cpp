@@ -77,7 +77,7 @@ char gameDefeatMsg[33] = "Game Over! Time's up!";
 void setup()
 {
     Serial.begin(9600);
-
+    Serial1.begin(9600);
     // Initialize display
     lcd.init();
     lcd.backlight();
@@ -88,7 +88,8 @@ void setup()
 
     // Initialize MP3 player
     mySoftwareSerial.begin(9600);
-    if (!myDFPlayer.begin(mySoftwareSerial))
+    // if (!myDFPlayer.begin(mySoftwareSerial))
+    if (!myDFPlayer.begin(Serial1))
     {
         lcd.clear();
         lcd.print("MP3 Error!");
