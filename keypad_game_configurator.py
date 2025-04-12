@@ -357,6 +357,7 @@ class KeypadGameConfigurator:
             config_data = {}
             for _ in range(12):  # Increased from 7 to 12 to include the 5 new message configs
                 response = self.serial_port.readline().decode('utf-8').strip()
+                print(f"Received response: {response}")
                 if response.startswith("CONFIG:"):
                     parts = response[7:].split(":", 1)
                     if len(parts) == 2:
@@ -582,6 +583,15 @@ class KeypadGameConfigurator:
         # Add these to the save/load functions
         ttk.Label(messages_frame, text="Note: Messages are limited to 16 characters per line (LCD constraint)").grid(
             row=5, column=0, columnspan=2, sticky=tk.W, padx=5, pady=10)
+
+    def read_serial_data(serial_port):
+        try:
+            # Use 'replace' error handler to substitute invalid bytes
+            data = serial_port.readline().decode('utf-8', errors='replace')
+            return data
+        except Exception as e:
+            print(f"Error reading serial: {e}")
+            return ""
 
 if __name__ == "__main__":
     root = tk.Tk()

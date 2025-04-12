@@ -102,12 +102,16 @@ void setup()
     for (int i = 0; i < 5; i++)
     {
         pinMode(GREEN_LEDS[i], OUTPUT);
-        digitalWrite(GREEN_LEDS[i], LOW);
+        digitalWrite(GREEN_LEDS[i], HIGH);
 
         pinMode(RED_LEDS[i], OUTPUT);
+        digitalWrite(RED_LEDS[i], HIGH);
+    }
+    for (int i = 0; i < 5; i++)
+    {
+        digitalWrite(GREEN_LEDS[i], LOW);
         digitalWrite(RED_LEDS[i], LOW);
     }
-
     // Initialize start button
     pinMode(START_BUTTON, INPUT_PULLUP);
 
@@ -131,6 +135,7 @@ void setup()
 
     // Load game configuration from EEPROM
     loadGameConfig();
+    printConfig();
 }
 
 void loop()
@@ -1032,4 +1037,65 @@ void processSerialCommand()
         lcd.print("Press START");
         Serial.println("OK:RESET");
     }
+}
+
+void printConfig()
+{
+    Serial.println("--- Configuration ---");
+    delay(50);
+
+    Serial.print("Countdown: ");
+    Serial.println(countdownDuration / 1000);
+    delay(50);
+
+    Serial.print("Penalty: ");
+    Serial.println(penaltyTime / 1000);
+    delay(50);
+
+    Serial.print("Switches: ");
+    for (int i = 0; i < 6; i++)
+    {
+        Serial.print(switchPositions[i]);
+    }
+    Serial.println();
+    delay(50);
+    Serial.print("Buttons: ");
+    for (int i = 0; i < 6; i++)
+    {
+        Serial.print(buttonSequence[i]);
+    }
+    Serial.println();
+    delay(50);
+    Serial.print("Pots: ");
+    for (int i = 0; i < 6; i++)
+    {
+        Serial.print(potValues[i]);
+        if (i < 5)
+        {
+            Serial.print(", ");
+        }
+    }
+    Serial.println();
+    delay(50);
+    Serial.print("Jacks: ");
+    for (int i = 0; i < 8; i++)
+    {
+        Serial.print(jackConnections[i][0]);
+        Serial.print(", ");
+        Serial.print(jackConnections[i][1]);
+        if (i < 7 || i % 2 == 1)
+        {
+            Serial.print(", ");
+        }
+        Serial.println();
+    }
+    delay(50);
+    Serial.print("Keypad Code: ");
+    Serial.println(keypadCode);
+    Serial.print("Start Message: ");
+    Serial.println(gameStartMsg);
+    Serial.print("Correct Message: ");
+    Serial.println(sequenceCorrectMsg);
+    Serial.print("Wrong Message: ");
+    Serial.println(sequenceWrongMsg);
 }
