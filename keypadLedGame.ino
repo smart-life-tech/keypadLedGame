@@ -133,9 +133,10 @@ void setup()
         pinMode(JACK_PINS[i], INPUT_PULLUP);
     }
 
-    // Load game configuration from EEPROM
+    // Load game configuration from EEPROM and print it to serial monitor
     loadGameConfig();
     printConfig();
+
 }
 
 void loop()
@@ -1041,7 +1042,7 @@ void processSerialCommand()
 
 void printConfig()
 {
-    Serial.println("--- Configuration ---");
+    Serial.println("---saved  Configuration ---");
     delay(50);
 
     Serial.print("Countdown: ");
@@ -1098,4 +1099,5 @@ void printConfig()
     Serial.println(sequenceCorrectMsg);
     Serial.print("Wrong Message: ");
     Serial.println(sequenceWrongMsg);
+    Serial.println("now connect the GUI  configurator");
 }
