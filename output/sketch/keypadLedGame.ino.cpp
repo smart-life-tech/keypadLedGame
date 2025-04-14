@@ -72,8 +72,8 @@ bool keypadSequenceCompleted = false;
 
 // Add these variables to store custom messages
 char gameStartMsg[33] = "Game Started! Good luck!";
-char sequenceCorrectMsg[33] = "Well done!";
-char sequenceWrongMsg[33] = "Try again!";
+String  sequenceCorrectMsg = "Well done!";
+String sequenceWrongMsg = "Try again!";
 char gameVictoryMsg[33] = "Victory! All tasks done!";
 char gameDefeatMsg[33] = "Game Over! Time's up!";
 unsigned long sequenceStartTime = 0;
@@ -104,9 +104,9 @@ void checkPotSequence();
 #line 553 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkJackConnections();
 #line 651 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
-void showSuccessMessage(const char *specificMessage);
+void showSuccessMessage(String specificMessage);
 #line 663 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
-void showFailureMessage(const char *specificMessage);
+void showFailureMessage(String specificMessage);
 #line 675 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void flashRedLeds();
 #line 689 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
@@ -691,7 +691,7 @@ void checkJackConnections()
     }
 }
 
-void showSuccessMessage(const char *specificMessage)
+void showSuccessMessage(String specificMessage)
 {
     lcd.clear();
     lcd.print(specificMessage);
@@ -703,7 +703,7 @@ void showSuccessMessage(const char *specificMessage)
     lastDisplayUpdate = millis() - 1000; // Force update in next cycle
 }
 
-void showFailureMessage(const char *specificMessage)
+void showFailureMessage(String specificMessage)
 {
     lcd.clear();
     lcd.print(specificMessage);
@@ -1007,13 +1007,13 @@ void processSerialCommand()
             else if (command.startsWith("CORRECT:"))
             {
                 String msg = command.substring(8);
-                msg.toCharArray(sequenceCorrectMsg, 33);
+                //msg.toCharArray(sequenceCorrectMsg, 33);
                 Serial.println("OK:MSG:CORRECT");
             }
             else if (command.startsWith("WRONG:"))
             {
                 String msg = command.substring(6);
-                msg.toCharArray(sequenceWrongMsg, 33);
+                //msg.toCharArray(sequenceWrongMsg, 33);
                 Serial.println("OK:MSG:WRONG");
             }
             else if (command.startsWith("VICTORY:"))
