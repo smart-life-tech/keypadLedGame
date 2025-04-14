@@ -74,7 +74,8 @@ char sequenceCorrectMsg[33] = "Well done!";
 char sequenceWrongMsg[33] = "Try again!";
 char gameVictoryMsg[33] = "Victory! All tasks done!";
 char gameDefeatMsg[33] = "Game Over! Time's up!";
-
+unsigned long sequenceStartTime = 0;
+const unsigned long SEQUENCE_TIMEOUT = 60000; // 60 seconds in milliseconds
 // Function prototypes
 void setup()
 {
@@ -95,6 +96,7 @@ void setup()
     {
         lcd.clear();
         lcd.print("MP3 Error!");
+        delay(1000);
     }
     myDFPlayer.volume(25); // Set volume (0-30)
 
@@ -136,7 +138,6 @@ void setup()
     // Load game configuration from EEPROM and print it to serial monitor
     loadGameConfig();
     printConfig();
-
 }
 
 void loop()
@@ -200,17 +201,19 @@ void startGame()
     // Display game start message
     lcd.clear();
     lcd.print(gameStartMsg);
-    lcd.setCursor(0, 1);
-    lcd.print("Press START");
-
+    
     // Play start audio
     myDFPlayer.play(1); // Assuming 1 is the start audio file
-
-    // Wait for audio to finish (approximate)
-    delay(5000); // Adjust based on your audio length
-
+    
+    // Wait a moment for audio to start
+    delay(500);
+    
+    // Update display with countdown after a short delay
+    // This allows the start message to be visible while audio plays
+    delay(3000);
+    
     // Update display with countdown
-    lastDisplayUpdate = millis();
+    lastDisplayUpdate = millis() - 1000; // Force immediate update
 }
 
 void endGame(bool victory)
@@ -257,12 +260,25 @@ void updateCountdownDisplay()
         if (elapsedTime < countdownDuration)
         {
             unsigned long remainingTime = (countdownDuration - elapsedTime) / 1000;
+            
+            // Convert to hours, minutes, seconds
+            int hours = remainingTime / 3600;
+            int minutes = (remainingTime % 3600) / 60;
+            int seconds = remainingTime % 60;
 
             lcd.clear();
             lcd.print("Time remaining:");
             lcd.setCursor(0, 1);
-            lcd.print(remainingTime);
-            lcd.print(" seconds");
+            
+            // Format as hh:mm:ss
+            if (hours < 10) lcd.print("0");
+            lcd.print(hours);
+            lcd.print(":");
+            if (minutes < 10) lcd.print("0");
+            lcd.print(minutes);
+            lcd.print(":");
+            if (seconds < 10) lcd.print("0");
+            lcd.print(seconds);
         }
     }
 }
@@ -273,10 +289,21 @@ void processKeypadInput(char key)
     static int sequenceIndex = 0;
     static bool sequenceStarted = false;
 
+    // Check if sequence has timed out
+    if (sequenceStarted && (millis() - sequenceStartTime > SEQUENCE_TIMEOUT)) {
+        sequenceStarted = false;
+        showFailureMessage("Sequence timeout!");
+        flashRedLeds();
+        myDFPlayer.play(5); // Failure audio
+        applyPenalty();
+        return;
+    }
+
     // Check if this is a sequence start marker
     if (key == '*' && !sequenceStarted)
     {
         sequenceStarted = true;
+        sequenceStartTime = millis(); // Start the timeout timer
         sequenceIndex = 0;
         currentSequence[0] = '\0';
         lcd.clear();
@@ -629,7 +656,8 @@ void showSuccessMessage(const char *specificMessage)
     lcd.print(sequenceCorrectMsg);
 
     // Message will be visible for a few seconds
-    lastDisplayUpdate = millis() - 990; // Force update in next cycle
+    delay(2000); // Keep message visible for 2 seconds
+    lastDisplayUpdate = millis() - 1000; // Force update in next cycle
 }
 
 void showFailureMessage(const char *specificMessage)
@@ -640,7 +668,8 @@ void showFailureMessage(const char *specificMessage)
     lcd.print(sequenceWrongMsg);
 
     // Message will be visible for a few seconds
-    lastDisplayUpdate = millis() - 990; // Force update in next cycle
+    delay(2000); // Keep message visible for 2 seconds
+    lastDisplayUpdate = millis() - 1000; // Force update in next cycle
 }
 
 void flashRedLeds()

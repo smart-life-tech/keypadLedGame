@@ -76,49 +76,50 @@ char sequenceCorrectMsg[33] = "Well done!";
 char sequenceWrongMsg[33] = "Try again!";
 char gameVictoryMsg[33] = "Victory! All tasks done!";
 char gameDefeatMsg[33] = "Game Over! Time's up!";
-
+unsigned long sequenceStartTime = 0;
+const unsigned long SEQUENCE_TIMEOUT = 60000; // 60 seconds in milliseconds
 // Function prototypes
-#line 79 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 80 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void setup();
-#line 141 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 143 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void loop();
-#line 186 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 188 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void startGame();
-#line 215 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 219 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void endGame(bool victory);
-#line 248 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 252 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void updateCountdownDisplay();
-#line 269 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 286 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void processKeypadInput(char key);
-#line 345 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 373 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkKeypadCode(char *enteredCode);
-#line 371 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 399 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkSwitchSequence();
-#line 409 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 437 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkButtonSequence();
-#line 449 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 477 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkKeypadSequence(char *sequence, int length);
-#line 485 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 513 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkPotSequence();
-#line 525 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 553 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkJackConnections();
-#line 623 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 651 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void showSuccessMessage(const char *specificMessage);
-#line 634 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 663 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void showFailureMessage(const char *specificMessage);
-#line 645 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 675 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void flashRedLeds();
-#line 659 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 689 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void applyPenalty();
-#line 666 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 696 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void saveGameConfig();
-#line 733 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 763 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void loadGameConfig();
-#line 801 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 831 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void processSerialCommand();
-#line 1042 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 1072 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void printConfig();
-#line 79 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 80 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void setup()
 {
     Serial.begin(9600);
@@ -138,6 +139,7 @@ void setup()
     {
         lcd.clear();
         lcd.print("MP3 Error!");
+        delay(1000);
     }
     myDFPlayer.volume(25); // Set volume (0-30)
 
@@ -176,7 +178,7 @@ void setup()
         pinMode(JACK_PINS[i], INPUT_PULLUP);
     }
 
-    // Load game configuration from EEPROM
+    // Load game configuration from EEPROM and print it to serial monitor
     loadGameConfig();
     printConfig();
 }
@@ -242,17 +244,19 @@ void startGame()
     // Display game start message
     lcd.clear();
     lcd.print(gameStartMsg);
-    lcd.setCursor(0, 1);
-    lcd.print("Press START");
-
+    
     // Play start audio
     myDFPlayer.play(1); // Assuming 1 is the start audio file
-
-    // Wait for audio to finish (approximate)
-    delay(5000); // Adjust based on your audio length
-
+    
+    // Wait a moment for audio to start
+    delay(500);
+    
+    // Update display with countdown after a short delay
+    // This allows the start message to be visible while audio plays
+    delay(3000);
+    
     // Update display with countdown
-    lastDisplayUpdate = millis();
+    lastDisplayUpdate = millis() - 1000; // Force immediate update
 }
 
 void endGame(bool victory)
@@ -299,12 +303,25 @@ void updateCountdownDisplay()
         if (elapsedTime < countdownDuration)
         {
             unsigned long remainingTime = (countdownDuration - elapsedTime) / 1000;
+            
+            // Convert to hours, minutes, seconds
+            int hours = remainingTime / 3600;
+            int minutes = (remainingTime % 3600) / 60;
+            int seconds = remainingTime % 60;
 
             lcd.clear();
             lcd.print("Time remaining:");
             lcd.setCursor(0, 1);
-            lcd.print(remainingTime);
-            lcd.print(" seconds");
+            
+            // Format as hh:mm:ss
+            if (hours < 10) lcd.print("0");
+            lcd.print(hours);
+            lcd.print(":");
+            if (minutes < 10) lcd.print("0");
+            lcd.print(minutes);
+            lcd.print(":");
+            if (seconds < 10) lcd.print("0");
+            lcd.print(seconds);
         }
     }
 }
@@ -315,10 +332,21 @@ void processKeypadInput(char key)
     static int sequenceIndex = 0;
     static bool sequenceStarted = false;
 
+    // Check if sequence has timed out
+    if (sequenceStarted && (millis() - sequenceStartTime > SEQUENCE_TIMEOUT)) {
+        sequenceStarted = false;
+        showFailureMessage("Sequence timeout!");
+        flashRedLeds();
+        myDFPlayer.play(5); // Failure audio
+        applyPenalty();
+        return;
+    }
+
     // Check if this is a sequence start marker
     if (key == '*' && !sequenceStarted)
     {
         sequenceStarted = true;
+        sequenceStartTime = millis(); // Start the timeout timer
         sequenceIndex = 0;
         currentSequence[0] = '\0';
         lcd.clear();
@@ -671,7 +699,8 @@ void showSuccessMessage(const char *specificMessage)
     lcd.print(sequenceCorrectMsg);
 
     // Message will be visible for a few seconds
-    lastDisplayUpdate = millis() - 990; // Force update in next cycle
+    delay(2000); // Keep message visible for 2 seconds
+    lastDisplayUpdate = millis() - 1000; // Force update in next cycle
 }
 
 void showFailureMessage(const char *specificMessage)
@@ -682,7 +711,8 @@ void showFailureMessage(const char *specificMessage)
     lcd.print(sequenceWrongMsg);
 
     // Message will be visible for a few seconds
-    lastDisplayUpdate = millis() - 990; // Force update in next cycle
+    delay(2000); // Keep message visible for 2 seconds
+    lastDisplayUpdate = millis() - 1000; // Force update in next cycle
 }
 
 void flashRedLeds()
@@ -1084,7 +1114,7 @@ void processSerialCommand()
 
 void printConfig()
 {
-    Serial.println("--- Configuration ---");
+    Serial.println("---saved  Configuration ---");
     delay(50);
 
     Serial.print("Countdown: ");
@@ -1141,5 +1171,6 @@ void printConfig()
     Serial.println(sequenceCorrectMsg);
     Serial.print("Wrong Message: ");
     Serial.println(sequenceWrongMsg);
+    Serial.println("now connect the GUI  configurator");
 }
 
