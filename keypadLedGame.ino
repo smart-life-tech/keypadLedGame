@@ -144,17 +144,19 @@ void setup()
     {
         pinMode(GREEN_LEDS[i], OUTPUT);
         pinMode(RED_LEDS[i], OUTPUT);
-
+    }
+    // Test all LEDs
+    for (int i = 0; i < 5; i++)
+    {
         // Turn on and off each LED to test
         digitalWrite(GREEN_LEDS[i], HIGH);
-        delay(200);
+        delay(1000);
         digitalWrite(GREEN_LEDS[i], LOW);
 
         digitalWrite(RED_LEDS[i], HIGH);
-        delay(200);
+        delay(1000);
         digitalWrite(RED_LEDS[i], LOW);
     }
-
     // Initialize start button
     pinMode(START_BUTTON, INPUT_PULLUP);
 
