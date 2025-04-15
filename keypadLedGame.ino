@@ -36,6 +36,7 @@ int currentInputIndex = 0;
 const int GREEN_LEDS[5] = {50, 51, 52, 53, A6};
 const int RED_LEDS[5] = {28, 29, 37, 40, 49};
 String gType = "";
+bool start = true;
 const int SEQUENCE_DISPLAY_TIMEOUT = 60000; // 60 seconds for sequence attempts
 bool sequenceStarted = false;
 // Start button pin - updated
@@ -212,13 +213,18 @@ void loop()
         if (sequenceActive)
         {
             updateCountdownDisplay();
+            start = true;
         }
         else
         {
-            lcd.clear();
-            lcd.print("Start game..");
-            lcd.setCursor(0, 1);
-            lcd.print("set & verify");
+            if (start)
+            {
+                lcd.clear();
+                lcd.print("Start game..");
+                lcd.setCursor(0, 1);
+                lcd.print("set & verify");
+                start = false;
+            }
         }
 
         // Check if time is up
@@ -381,35 +387,35 @@ void processKeypadInput(char key)
                 lcd.setCursor(0, 1);
                 lcd.print("Set switches...");
                 gType = "Switch";
-                countdownDuration = 60;
+                // countdownDuration = 60;
                 break;
             case 'B':
                 lcd.print("Button sequence");
                 lcd.setCursor(0, 1);
                 lcd.print("Press buttons...");
                 gType = "Button";
-                countdownDuration = 60;
+                // countdownDuration = 60;
                 break;
             case 'C':
                 lcd.print("Potentiometers");
                 lcd.setCursor(0, 1);
                 lcd.print("Adjust pots...");
                 gType = "Pot";
-                countdownDuration = 60;
+                // countdownDuration = 60;
                 break;
             case 'D':
                 lcd.print("Jack connections");
                 lcd.setCursor(0, 1);
                 lcd.print("Connect jacks...");
                 gType = "Jack";
-                countdownDuration = 60;
+                // countdownDuration = 60;
                 break;
             case '*':
                 lcd.print("Keypad code");
                 lcd.setCursor(0, 1);
                 lcd.print("Enter code: ");
                 gType = "Keypad";
-                countdownDuration = 60;
+                // countdownDuration = 60;
                 break;
             }
 
@@ -427,6 +433,7 @@ void processKeypadInput(char key)
     {
         sequenceActive = false;
         lcd.clear();
+        lcd.setCursor(0, 0);
         lcd.print("Time's up!");
         lcd.setCursor(0, 1);
         lcd.print(sequenceWrongMsg);
@@ -1142,7 +1149,7 @@ void processSerialCommand()
             if (command.startsWith("START:"))
             {
                 String msg = command.substring(6);
-              //  msg.toCharArray(gameStartMsg, 33);
+                //  msg.toCharArray(gameStartMsg, 33);
                 Serial.println("OK:MSG:START");
             }
             else if (command.startsWith("CORRECT:"))
