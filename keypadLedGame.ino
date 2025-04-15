@@ -380,35 +380,35 @@ void processKeypadInput(char key)
                 lcd.print("Switch sequence");
                 lcd.setCursor(0, 1);
                 lcd.print("Set switches...");
-                gType= "Switch";
+                gType = "Switch";
                 countdownDuration = 60;
                 break;
             case 'B':
                 lcd.print("Button sequence");
                 lcd.setCursor(0, 1);
                 lcd.print("Press buttons...");
-                gType= "Button";
+                gType = "Button";
                 countdownDuration = 60;
                 break;
             case 'C':
                 lcd.print("Potentiometers");
                 lcd.setCursor(0, 1);
                 lcd.print("Adjust pots...");
-                gType= "Pot";
+                gType = "Pot";
                 countdownDuration = 60;
                 break;
             case 'D':
                 lcd.print("Jack connections");
                 lcd.setCursor(0, 1);
                 lcd.print("Connect jacks...");
-                gType= "Jack";
+                gType = "Jack";
                 countdownDuration = 60;
                 break;
             case '*':
                 lcd.print("Keypad code");
                 lcd.setCursor(0, 1);
                 lcd.print("Enter code: ");
-                gType= "Keypad";
+                gType = "Keypad";
                 countdownDuration = 60;
                 break;
             }
@@ -542,9 +542,16 @@ void checkSwitchSequence()
     bool correct = true;
 
     // Check if all switches are in the correct position
+    Serial.println("Checking switch sequence...");
     for (int i = 0; i < 6; i++)
     {
         int switchState = digitalRead(SWITCH_PINS[i]) == LOW ? 1 : 0;
+        Serial.print("Switch ");
+        Serial.print(i);
+        Serial.print(" state: ");
+        Serial.print(switchState);
+        Serial.print("  stored position: ");
+        Serial.println(switchPositions[i]);
         if (switchState != switchPositions[i])
         {
             correct = false;
