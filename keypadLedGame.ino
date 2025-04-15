@@ -28,7 +28,7 @@ Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 // Add these global variables at the top of the file
 bool sequenceActive = false;
 char currentSequenceType = '\0';
-unsigned long sequenceStartTime = 0;
+//unsigned long sequenceStartTime = 0;
 char currentInputSequence[20] = "";
 int currentInputIndex = 0;
 // LED pins - updated
