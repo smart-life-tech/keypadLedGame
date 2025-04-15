@@ -1142,7 +1142,7 @@ void processSerialCommand()
             if (command.startsWith("START:"))
             {
                 String msg = command.substring(6);
-                msg.toCharArray(gameStartMsg, 33);
+              //  msg.toCharArray(gameStartMsg, 33);
                 Serial.println("OK:MSG:START");
             }
             else if (command.startsWith("CORRECT:"))
