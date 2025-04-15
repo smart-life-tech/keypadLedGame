@@ -37,7 +37,8 @@ int currentInputIndex = 0;
 // LED pins - updated
 const int GREEN_LEDS[5] = {50, 51, 52, 53, A6};
 const int RED_LEDS[5] = {28, 29, 37, 40, 49};
-
+String gType = "";
+bool start = true;
 const int SEQUENCE_DISPLAY_TIMEOUT = 60000; // 60 seconds for sequence attempts
 bool sequenceStarted = false;
 // Start button pin - updated
@@ -79,7 +80,7 @@ bool jackSequenceCompleted = false;
 bool keypadSequenceCompleted = false;
 
 // Add these variables to store custom messages
-char gameStartMsg[33] = "Game Started! Good luck!";
+String gameStartMsg = "Game Started! Good luck!";
 String sequenceCorrectMsg = "Well done!";
 String sequenceWrongMsg = "Try again!";
 char gameVictoryMsg[33] = "Victory! All tasks done!";
@@ -87,47 +88,47 @@ char gameDefeatMsg[33] = "Game Over! Time's up!";
 unsigned long sequenceStartTime = 0;
 const unsigned long SEQUENCE_TIMEOUT = 60000; // 60 seconds in milliseconds
 // Function prototypes
-#line 88 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 89 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void setup();
 #line 194 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void loop();
-#line 243 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 255 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void startGame();
-#line 284 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 296 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void endGame(bool victory);
-#line 317 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 329 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void updateCountdownDisplay();
-#line 354 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 369 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void processKeypadInput(char key);
-#line 500 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 521 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkKeypadCode(char *enteredCode);
-#line 526 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 547 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkSwitchSequence();
-#line 584 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 612 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkButtonSequence();
-#line 624 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 652 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkKeypadSequence(char *sequence, int length);
-#line 660 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 688 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkPotSequence();
-#line 700 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 728 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkJackConnections();
-#line 798 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 826 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void showSuccessMessage(String specificMessage);
-#line 818 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 846 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void showFailureMessage(String specificMessage);
-#line 838 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 866 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void flashRedLeds();
-#line 852 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 880 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void applyPenalty();
-#line 859 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 887 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void saveGameConfig();
-#line 926 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 954 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void loadGameConfig();
-#line 994 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 1022 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void processSerialCommand();
-#line 1235 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 1263 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void printConfig();
-#line 88 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 89 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void setup()
 {
     Serial.begin(9600);
@@ -189,9 +190,8 @@ void setup()
     {
         pinMode(GREEN_LEDS[i], OUTPUT);
         pinMode(RED_LEDS[i], OUTPUT);
-
     }
-     // Test all LEDs
+    // Test all LEDs
     for (int i = 0; i < 5; i++)
     {
         // Turn on and off each LED to test
@@ -256,6 +256,18 @@ void loop()
         if (sequenceActive)
         {
             updateCountdownDisplay();
+            start = true;
+        }
+        else
+        {
+            if (start)
+            {
+                lcd.clear();
+                lcd.print("Start game..");
+                lcd.setCursor(0, 1);
+                lcd.print("set & verify");
+                start = false;
+            }
         }
 
         // Check if time is up
@@ -375,7 +387,10 @@ void updateCountdownDisplay()
             int seconds = remainingTime % 60;
 
             lcd.clear();
-            lcd.print("Time remaining:");
+            lcd.setCursor(0, 0);
+            lcd.print(gType);
+            lcd.setCursor(7, 0);
+            lcd.print("Time rem:");
             lcd.setCursor(0, 1);
 
             // Format as hh:mm:ss
@@ -414,31 +429,36 @@ void processKeypadInput(char key)
                 lcd.print("Switch sequence");
                 lcd.setCursor(0, 1);
                 lcd.print("Set switches...");
-                countdownDuration = 60 * 1000;
+                gType = "Switch";
+                // countdownDuration = 60;
                 break;
             case 'B':
                 lcd.print("Button sequence");
                 lcd.setCursor(0, 1);
                 lcd.print("Press buttons...");
-                countdownDuration = 60 * 1000;
+                gType = "Button";
+                // countdownDuration = 60;
                 break;
             case 'C':
                 lcd.print("Potentiometers");
                 lcd.setCursor(0, 1);
                 lcd.print("Adjust pots...");
-                countdownDuration = 60 * 1000;
+                gType = "Pot";
+                // countdownDuration = 60;
                 break;
             case 'D':
                 lcd.print("Jack connections");
                 lcd.setCursor(0, 1);
                 lcd.print("Connect jacks...");
-                countdownDuration = 60 * 1000;
+                gType = "Jack";
+                // countdownDuration = 60;
                 break;
             case '*':
                 lcd.print("Keypad code");
                 lcd.setCursor(0, 1);
                 lcd.print("Enter code: ");
-                countdownDuration = 60 * 1000;
+                gType = "Keypad";
+                // countdownDuration = 60;
                 break;
             }
 
@@ -456,6 +476,7 @@ void processKeypadInput(char key)
     {
         sequenceActive = false;
         lcd.clear();
+        lcd.setCursor(0, 0);
         lcd.print("Time's up!");
         lcd.setCursor(0, 1);
         lcd.print(sequenceWrongMsg);
@@ -571,9 +592,16 @@ void checkSwitchSequence()
     bool correct = true;
 
     // Check if all switches are in the correct position
+    Serial.println("Checking switch sequence...");
     for (int i = 0; i < 6; i++)
     {
         int switchState = digitalRead(SWITCH_PINS[i]) == LOW ? 1 : 0;
+        Serial.print("Switch ");
+        Serial.print(i);
+        Serial.print(" state: ");
+        Serial.print(switchState);
+        Serial.print("  stored position: ");
+        Serial.println(switchPositions[i]);
         if (switchState != switchPositions[i])
         {
             correct = false;
@@ -598,7 +626,7 @@ void checkSwitchSequence()
 
         lcd.print("Switches correct!");
         lcd.setCursor(0, 1);
-        lcd.print(sequenceCorrectMsg);
+        // lcd.print(sequenceCorrectMsg);
 
         // Try to play success sound
         if (myDFPlayer.available())
@@ -610,7 +638,7 @@ void checkSwitchSequence()
     {
         lcd.print("Switches wrong!");
         lcd.setCursor(0, 1);
-        lcd.print(sequenceWrongMsg);
+        // lcd.print(sequenceWrongMsg);
 
         flashRedLeds();
 
@@ -1164,7 +1192,7 @@ void processSerialCommand()
             if (command.startsWith("START:"))
             {
                 String msg = command.substring(6);
-                msg.toCharArray(gameStartMsg, 33);
+                //  msg.toCharArray(gameStartMsg, 33);
                 Serial.println("OK:MSG:START");
             }
             else if (command.startsWith("CORRECT:"))
