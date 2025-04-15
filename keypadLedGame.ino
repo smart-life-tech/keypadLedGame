@@ -25,10 +25,10 @@ char keys[ROWS][COLS] = {
 byte rowPins[ROWS] = {A8, A9, A10, A11}; // Connect to the row pinouts of the keypad
 byte colPins[COLS] = {8, 9, 12, 13};     // Connect to the column pinouts of the keypad
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
-// Add these global variables at the top of the file
+// Game configuration
 bool sequenceActive = false;
 char currentSequenceType = '\0';
-unsigned long sequenceStartTime = 0;
+//unsigned long sequenceStartTime = 0;
 char currentInputSequence[20] = "";
 int currentInputIndex = 0;
 // LED pins - updated
