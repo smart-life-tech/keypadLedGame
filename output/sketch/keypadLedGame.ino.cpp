@@ -92,41 +92,41 @@ const unsigned long SEQUENCE_TIMEOUT = 60000; // 60 seconds in milliseconds
 void setup();
 #line 194 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void loop();
-#line 255 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 273 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void startGame();
-#line 296 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 314 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void endGame(bool victory);
-#line 329 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 347 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void updateCountdownDisplay();
-#line 369 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 387 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void processKeypadInput(char key);
-#line 521 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 539 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkKeypadCode(char *enteredCode);
-#line 547 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 565 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkSwitchSequence();
-#line 612 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 630 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkButtonSequence();
-#line 652 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 670 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkKeypadSequence(char *sequence, int length);
-#line 688 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 706 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkPotSequence();
-#line 728 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 746 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkJackConnections();
-#line 826 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 844 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void showSuccessMessage(String specificMessage);
-#line 846 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 864 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void showFailureMessage(String specificMessage);
-#line 866 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 884 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void flashRedLeds();
-#line 880 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 898 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void applyPenalty();
-#line 887 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 905 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void saveGameConfig();
-#line 954 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 972 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void loadGameConfig();
-#line 1022 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 1040 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void processSerialCommand();
-#line 1263 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 1281 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void printConfig();
 #line 89 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void setup()
@@ -265,7 +265,25 @@ void loop()
                 lcd.clear();
                 lcd.print("Start game..");
                 lcd.setCursor(0, 1);
-                lcd.print("set & verify");
+                unsigned long remainingTime = (countdownDuration - 0) / 1000;
+
+                // Convert to hours, minutes, seconds
+                int hours = remainingTime / 3600;
+                int minutes = (remainingTime % 3600) / 60;
+                int seconds = remainingTime % 60;
+
+                // Format as hh:mm:ss
+                if (hours < 10)
+                    lcd.print("0");
+                lcd.print(hours);
+                lcd.print(":");
+                if (minutes < 10)
+                    lcd.print("0");
+                lcd.print(minutes);
+                lcd.print(":");
+                if (seconds < 10)
+                    lcd.print("0");
+                lcd.print(seconds);
                 start = false;
             }
         }
@@ -430,35 +448,35 @@ void processKeypadInput(char key)
                 lcd.setCursor(0, 1);
                 lcd.print("Set switches...");
                 gType = "Switch";
-                // countdownDuration = 60;
+                countdownDuration = 6000;
                 break;
             case 'B':
                 lcd.print("Button sequence");
                 lcd.setCursor(0, 1);
                 lcd.print("Press buttons...");
                 gType = "Button";
-                // countdownDuration = 60;
+                countdownDuration = 6000;
                 break;
             case 'C':
                 lcd.print("Potentiometers");
                 lcd.setCursor(0, 1);
                 lcd.print("Adjust pots...");
                 gType = "Pot";
-                // countdownDuration = 60;
+                countdownDuration = 6000;
                 break;
             case 'D':
                 lcd.print("Jack connections");
                 lcd.setCursor(0, 1);
                 lcd.print("Connect jacks...");
                 gType = "Jack";
-                // countdownDuration = 60;
+                countdownDuration = 600;
                 break;
             case '*':
                 lcd.print("Keypad code");
                 lcd.setCursor(0, 1);
                 lcd.print("Enter code: ");
                 gType = "Keypad";
-                // countdownDuration = 60;
+                countdownDuration = 6000;
                 break;
             }
 

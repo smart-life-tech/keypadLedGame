@@ -223,7 +223,25 @@ void loop()
                 lcd.clear();
                 lcd.print("Start game..");
                 lcd.setCursor(0, 1);
-                lcd.print("set & verify");
+                unsigned long remainingTime = (countdownDuration - 0) / 1000;
+
+                // Convert to hours, minutes, seconds
+                int hours = remainingTime / 3600;
+                int minutes = (remainingTime % 3600) / 60;
+                int seconds = remainingTime % 60;
+
+                // Format as hh:mm:ss
+                if (hours < 10)
+                    lcd.print("0");
+                lcd.print(hours);
+                lcd.print(":");
+                if (minutes < 10)
+                    lcd.print("0");
+                lcd.print(minutes);
+                lcd.print(":");
+                if (seconds < 10)
+                    lcd.print("0");
+                lcd.print(seconds);
                 start = false;
             }
         }
@@ -388,35 +406,35 @@ void processKeypadInput(char key)
                 lcd.setCursor(0, 1);
                 lcd.print("Set switches...");
                 gType = "Switch";
-                // countdownDuration = 60;
+                countdownDuration = 6000;
                 break;
             case 'B':
                 lcd.print("Button sequence");
                 lcd.setCursor(0, 1);
                 lcd.print("Press buttons...");
                 gType = "Button";
-                // countdownDuration = 60;
+                countdownDuration = 6000;
                 break;
             case 'C':
                 lcd.print("Potentiometers");
                 lcd.setCursor(0, 1);
                 lcd.print("Adjust pots...");
                 gType = "Pot";
-                // countdownDuration = 60;
+                countdownDuration = 6000;
                 break;
             case 'D':
                 lcd.print("Jack connections");
                 lcd.setCursor(0, 1);
                 lcd.print("Connect jacks...");
                 gType = "Jack";
-                // countdownDuration = 60;
+                countdownDuration = 600;
                 break;
             case '*':
                 lcd.print("Keypad code");
                 lcd.setCursor(0, 1);
                 lcd.print("Enter code: ");
                 gType = "Keypad";
-                // countdownDuration = 60;
+                countdownDuration = 6000;
                 break;
             }
 
