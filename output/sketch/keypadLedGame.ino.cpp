@@ -35,7 +35,7 @@ char currentInputSequence[20] = "";
 int currentInputIndex = 0;
 // LED pins - updated
 const int GREEN_LEDS[5] = {50, 51, 52, 53, A6};
-const int RED_LEDS[5] = {28, 29, 37, 40, 49};
+const int RED_LEDS[5] = {28, 29, 38, 40, 49};
 
 const int SEQUENCE_DISPLAY_TIMEOUT = 60000; // 60 seconds for sequence attempts
 bool sequenceStarted = false;
@@ -100,33 +100,33 @@ void updateCountdownDisplay();
 void seqTimer();
 #line 395 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void processKeypadInput(char key);
-#line 497 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 503 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkKeypadCode(char *enteredCode);
-#line 523 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 529 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkSwitchSequence();
-#line 581 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 591 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkButtonSequence();
-#line 621 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 631 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkKeypadSequence(char *sequence, int length);
-#line 657 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 667 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkPotSequence();
-#line 697 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 709 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkJackConnections();
-#line 795 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 810 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void showSuccessMessage(String specificMessage);
-#line 815 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 830 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void showFailureMessage(String specificMessage);
-#line 835 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 850 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void flashRedLeds();
-#line 849 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 864 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void applyPenalty();
-#line 856 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 871 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void saveGameConfig();
-#line 923 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 938 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void loadGameConfig();
-#line 991 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 1006 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void processSerialCommand();
-#line 1232 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 1247 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void printConfig();
 #line 87 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void setup()
@@ -439,9 +439,13 @@ void seqTimer()
 }
 void processKeypadInput(char key)
 {
+    Serial.println("Key pressed: ");
+    Serial.println(key);
     // If no sequence is active, check if a sequence selection key was pressed
     if (!sequenceActive)
     {
+        Serial.print("Key pressed seq not active: ");
+        Serial.print(key);
         if (key == 'A' || key == 'B' || key == 'C' || key == 'D' || key == '*')
         {
             sequenceActive = true;
@@ -519,6 +523,8 @@ void processKeypadInput(char key)
         // Force countdown display update after showing success/failure message
         delay(2000);
         lastDisplayUpdate = millis() - 1000;
+        Serial.print("Key type pressed seq active: ");
+        Serial.print(currentSequenceType);
         return;
     }
 
@@ -573,6 +579,10 @@ void checkSwitchSequence()
     for (int i = 0; i < 6; i++)
     {
         int switchState = digitalRead(SWITCH_PINS[i]) == LOW ? 1 : 0;
+        Serial.print("Switch ");
+        Serial.print(i);
+        Serial.print(" state: ");
+        Serial.println(switchState);
         if (switchState != switchPositions[i])
         {
             correct = false;
@@ -702,6 +712,7 @@ void checkKeypadSequence(char *sequence, int length)
 void checkPotSequence()
 {
     bool correct = true;
+    Serial.print("Checking pot sequence...");
 
     // Check if all potentiometers are at the correct values (with some tolerance)
     const int TOLERANCE = 50; // Tolerance for potentiometer readings
@@ -737,12 +748,14 @@ void checkPotSequence()
         myDFPlayer.play(5); // Failure audio
         applyPenalty();
     }
+    Serial.println("Potentiometer check complete.");
 }
 
 void checkJackConnections()
 {
     bool correct = true;
-
+    Serial.print("Checking jack connections...");
+    Serial.println();
     // Create a matrix to track which jacks are connected
     bool jackMatrix[16][16] = {{false}};
 
@@ -819,6 +832,7 @@ void checkJackConnections()
         jackSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Jack connections OK!");
+        Serial.println("Jack connections OK!");
 
         // Light up a green LED based on completed sequences
         if (completedSequences <= 5)
@@ -831,6 +845,7 @@ void checkJackConnections()
     else
     {
         showFailureMessage("Jack connections wrong!");
+        Serial.print("jack check failed");
         flashRedLeds();
         myDFPlayer.play(5); // Failure audio
         applyPenalty();

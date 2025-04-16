@@ -34,7 +34,7 @@ char currentInputSequence[20] = "";
 int currentInputIndex = 0;
 // LED pins - updated
 const int GREEN_LEDS[5] = {50, 51, 52, 53, A6};
-const int RED_LEDS[5] = {28, 29, 37, 40, 49};
+const int RED_LEDS[5] = {28, 29, 38, 40, 49};
 
 const int SEQUENCE_DISPLAY_TIMEOUT = 60000; // 60 seconds for sequence attempts
 bool sequenceStarted = false;
@@ -395,9 +395,13 @@ void seqTimer()
 }
 void processKeypadInput(char key)
 {
+    Serial.println("Key pressed: ");
+    Serial.println(key);
     // If no sequence is active, check if a sequence selection key was pressed
     if (!sequenceActive)
     {
+        Serial.print("Key pressed seq not active: ");
+        Serial.print(key);
         if (key == 'A' || key == 'B' || key == 'C' || key == 'D' || key == '*')
         {
             sequenceActive = true;
@@ -475,6 +479,8 @@ void processKeypadInput(char key)
         // Force countdown display update after showing success/failure message
         delay(2000);
         lastDisplayUpdate = millis() - 1000;
+        Serial.print("Key type pressed seq active: ");
+        Serial.print(currentSequenceType);
         return;
     }
 
@@ -529,6 +535,10 @@ void checkSwitchSequence()
     for (int i = 0; i < 6; i++)
     {
         int switchState = digitalRead(SWITCH_PINS[i]) == 0x0 ? 1 : 0;
+        Serial.print("Switch ");
+        Serial.print(i);
+        Serial.print(" state: ");
+        Serial.println(switchState);
         if (switchState != switchPositions[i])
         {
             correct = false;
@@ -658,6 +668,7 @@ void checkKeypadSequence(char *sequence, int length)
 void checkPotSequence()
 {
     bool correct = true;
+    Serial.print("Checking pot sequence...");
 
     // Check if all potentiometers are at the correct values (with some tolerance)
     const int TOLERANCE = 50; // Tolerance for potentiometer readings
@@ -693,12 +704,14 @@ void checkPotSequence()
         myDFPlayer.play(5); // Failure audio
         applyPenalty();
     }
+    Serial.println("Potentiometer check complete.");
 }
 
 void checkJackConnections()
 {
     bool correct = true;
-
+    Serial.print("Checking jack connections...");
+    Serial.println();
     // Create a matrix to track which jacks are connected
     bool jackMatrix[16][16] = {{false}};
 
@@ -775,6 +788,7 @@ void checkJackConnections()
         jackSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Jack connections OK!");
+        Serial.println("Jack connections OK!");
 
         // Light up a green LED based on completed sequences
         if (completedSequences <= 5)
@@ -787,6 +801,7 @@ void checkJackConnections()
     else
     {
         showFailureMessage("Jack connections wrong!");
+        Serial.print("jack check failed");
         flashRedLeds();
         myDFPlayer.play(5); // Failure audio
         applyPenalty();
