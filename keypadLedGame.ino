@@ -28,7 +28,7 @@ Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 // Add these global variables at the top of the file
 bool sequenceActive = false;
 char currentSequenceType = '\0';
-//unsigned long sequenceStartTime = 0;
+// unsigned long sequenceStartTime = 0;
 char currentInputSequence[20] = "";
 int currentInputIndex = 0;
 // LED pins - updated
@@ -98,31 +98,37 @@ void setup()
     lcd.setCursor(0, 1);
     lcd.print("Initializing...");
     delay(1000);
-    
+
     // Initialize MP3 player with better error handling
     int retryCount = 0;
     bool dfPlayerInitialized = false;
-    
-    while (!dfPlayerInitialized && retryCount < 3) {
-        if (myDFPlayer.begin(Serial1)) {
+
+    while (!dfPlayerInitialized && retryCount < 3)
+    {
+        if (myDFPlayer.begin(Serial1))
+        {
             dfPlayerInitialized = true;
             myDFPlayer.volume(25); // Set volume (0-30)
-            
+
             // Test if SD card is present by trying to get number of files
-            if (myDFPlayer.readState() != 0) {
+            if (myDFPlayer.readState() != 0)
+            {
                 lcd.clear();
                 lcd.print("SD Card Error!");
                 lcd.setCursor(0, 1);
                 lcd.print("Check SD Card");
                 delay(2000);
             }
-        } else {
+        }
+        else
+        {
             retryCount++;
             delay(500);
         }
     }
-    
-    if (!dfPlayerInitialized) {
+
+    if (!dfPlayerInitialized)
+    {
         lcd.clear();
         lcd.print("MP3 Player Error");
         lcd.setCursor(0, 1);
@@ -133,17 +139,18 @@ void setup()
     // Initialize LEDs with explicit testing
     lcd.clear();
     lcd.print("Testing LEDs...");
-    
+
     // Test all LEDs
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++)
+    {
         pinMode(GREEN_LEDS[i], OUTPUT);
         pinMode(RED_LEDS[i], OUTPUT);
-        
+
         // Turn on and off each LED to test
         digitalWrite(GREEN_LEDS[i], HIGH);
         delay(200);
         digitalWrite(GREEN_LEDS[i], LOW);
-        
+
         digitalWrite(RED_LEDS[i], HIGH);
         delay(200);
         digitalWrite(RED_LEDS[i], LOW);
@@ -173,7 +180,7 @@ void setup()
     // Load game configuration from EEPROM and print it to serial monitor
     loadGameConfig();
     printConfig();
-    
+
     lcd.clear();
     lcd.print("Keypad LED Game");
     lcd.setCursor(0, 1);
@@ -202,6 +209,10 @@ void loop()
         if (!sequenceActive)
         {
             updateCountdownDisplay();
+        }
+        else
+        {
+            seqTimer();
         }
 
         // Check if time is up
@@ -246,7 +257,8 @@ void startGame()
     keypadSequenceCompleted = false;
 
     // Turn off all LEDs
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++)
+    {
         digitalWrite(GREEN_LEDS[i], LOW);
         digitalWrite(RED_LEDS[i], LOW);
     }
@@ -254,15 +266,16 @@ void startGame()
     // Display game start message
     lcd.clear();
     lcd.print(gameStartMsg);
-    
+
     // Try to play start audio
-    if (myDFPlayer.available()) {
+    if (myDFPlayer.available())
+    {
         myDFPlayer.play(1); // Assuming 1 is the start audio file
     }
-    
+
     // Wait a moment for the message to be visible
     delay(3000);
-    
+
     // Update display with countdown
     lastDisplayUpdate = millis() - 1000; // Force immediate update
     updateCountdownDisplay();
@@ -338,126 +351,140 @@ void updateCountdownDisplay()
     }
 }
 
-void processKeypadInput(char key)
+void seqTimer()
 {
-    // If no sequence is active, check if a sequence selection key was pressed
-    if (!sequenceActive) {
-        if (key == 'A' || key == 'B' || key == 'C' || key == 'D' || key == '*') {
-            sequenceActive = true;
-            currentSequenceType = key;
-            sequenceStartTime = millis();
-            currentInputIndex = 0;
-            currentInputSequence[0] = '\0';
-            
-            lcd.clear();
-            switch (key) {
-                case 'A':
-                    lcd.print("Switch sequence");
-                    lcd.setCursor(0, 1);
-                    lcd.print("Set switches...");
-                    break;
-                case 'B':
-                    lcd.print("Button sequence");
-                    lcd.setCursor(0, 1);
-                    lcd.print("Press buttons...");
-                    break;
-                case 'C':
-                    lcd.print("Potentiometers");
-                    lcd.setCursor(0, 1);
-                    lcd.print("Adjust pots...");
-                    break;
-                case 'D':
-                    lcd.print("Jack connections");
-                    lcd.setCursor(0, 1);
-                    lcd.print("Connect jacks...");
-                    break;
-                case '*':
-                    lcd.print("Keypad code");
-                    lcd.setCursor(0, 1);
-                    lcd.print("Enter code: ");
-                    break;
-            }
-            
-            // Try to play a sound to indicate sequence started
-            if (myDFPlayer.available()) {
-                myDFPlayer.play(6); // Assuming 6 is a "sequence start" sound
-            }
-        }
-        return;
-    }
-    
     // If a sequence is active, check for timeout
-    if (millis() - sequenceStartTime > SEQUENCE_TIMEOUT) {
+    if (millis() - sequenceStartTime > SEQUENCE_TIMEOUT)
+    {
         sequenceActive = false;
         lcd.clear();
         lcd.print("Time's up!");
         lcd.setCursor(0, 1);
         lcd.print(sequenceWrongMsg);
-        
+
         // Flash red LEDs
         flashRedLeds();
-        
+
         // Try to play failure sound
-        if (myDFPlayer.available()) {
+        if (myDFPlayer.available())
+        {
             myDFPlayer.play(5);
         }
-        
+
         // Apply penalty
         applyPenalty();
-        
+
         // Force countdown display update
         delay(2000);
         lastDisplayUpdate = millis() - 1000;
         return;
     }
-    
+
     // Display remaining time (update every second)
     static unsigned long lastTimeDisplay = 0;
-    if (millis() - lastTimeDisplay >= 1000) {
+    if (millis() - lastTimeDisplay >= 1000)
+    {
         lastTimeDisplay = millis();
         int remainingSeconds = (SEQUENCE_TIMEOUT - (millis() - sequenceStartTime)) / 1000;
         lcd.setCursor(14, 0);
-        if (remainingSeconds < 10) lcd.print("0");
+        if (remainingSeconds < 10)
+            lcd.print("0");
         lcd.print(remainingSeconds);
     }
-    
-    // Check if # is pressed to complete the sequence
-    if (key == '#') {
-        sequenceActive = false;
-        
-        // Evaluate the sequence based on what's being tested
-        switch (currentSequenceType) {
+}
+void processKeypadInput(char key)
+{
+    // If no sequence is active, check if a sequence selection key was pressed
+    if (!sequenceActive)
+    {
+        if (key == 'A' || key == 'B' || key == 'C' || key == 'D' || key == '*')
+        {
+            sequenceActive = true;
+            currentSequenceType = key;
+            sequenceStartTime = millis();
+            currentInputIndex = 0;
+            currentInputSequence[0] = '\0';
+
+            lcd.clear();
+            switch (key)
+            {
             case 'A':
-                checkSwitchSequence();
+                lcd.print("Switch sequence");
+                lcd.setCursor(0, 1);
+                lcd.print("Set switches...");
                 break;
             case 'B':
-                checkButtonSequence();
+                lcd.print("Button sequence");
+                lcd.setCursor(0, 1);
+                lcd.print("Press buttons...");
                 break;
             case 'C':
-                checkPotSequence();
+                lcd.print("Potentiometers");
+                lcd.setCursor(0, 1);
+                lcd.print("Adjust pots...");
                 break;
             case 'D':
-                checkJackConnections();
+                lcd.print("Jack connections");
+                lcd.setCursor(0, 1);
+                lcd.print("Connect jacks...");
                 break;
             case '*':
-                // For keypad code, evaluate the entered sequence
-                currentInputSequence[currentInputIndex] = '\0';
-                checkKeypadCode(currentInputSequence);
+                lcd.print("Keypad code");
+                lcd.setCursor(0, 1);
+                lcd.print("Enter code: ");
                 break;
+            }
+
+            // Try to play a sound to indicate sequence started
+            if (myDFPlayer.available())
+            {
+                myDFPlayer.play(6); // Assuming 6 is a "sequence start" sound
+            }
         }
-        
+        return;
+    }
+
+    // Check if # is pressed to complete the sequence
+    if (key == '#')
+    {
+        sequenceActive = false;
+
+        // Evaluate the sequence based on what's being tested
+        switch (currentSequenceType)
+        {
+        case 'A':
+            checkSwitchSequence();
+            break;
+        case 'B':
+            checkButtonSequence();
+            break;
+        case 'C':
+            checkPotSequence();
+            break;
+        case 'D':
+            checkJackConnections();
+            break;
+        case '*':
+            // For keypad code, evaluate the entered sequence
+            currentInputSequence[currentInputIndex] = '\0';
+            checkKeypadCode(currentInputSequence);
+            break;
+        }
+
         // Force countdown display update after showing success/failure message
         delay(2000);
         lastDisplayUpdate = millis() - 1000;
         return;
     }
-    
+
     // For keypad code entry, record the key presses
-    if (currentSequenceType == '*' && key != '#' && key != '*') {
-        if (currentInputIndex < 19) { // Leave room for null terminator
+    if (currentSequenceType == '*' && key != '#' && key != '*')
+    {
+        if (currentInputIndex < 19)
+        { // Leave room for null terminator
             currentInputSequence[currentInputIndex++] = key;
             currentInputSequence[currentInputIndex] = '\0';
-            
+
             // Show the entered sequence on the LCD
             lcd.setCursor(0, 1);
             lcd.print("Enter code: ");
@@ -498,47 +525,55 @@ void checkSwitchSequence()
     bool correct = true;
 
     // Check if all switches are in the correct position
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 6; i++)
+    {
         int switchState = digitalRead(SWITCH_PINS[i]) == LOW ? 1 : 0;
-        if (switchState != switchPositions[i]) {
+        if (switchState != switchPositions[i])
+        {
             correct = false;
             break;
         }
     }
 
     lcd.clear();
-    if (correct) {
+    if (correct)
+    {
         switchSequenceCompleted = true;
         completedSequences++;
-        
+
         // Light up a green LED based on completed sequences
-        if (completedSequences <= 5) {
+        if (completedSequences <= 5)
+        {
             digitalWrite(GREEN_LEDS[completedSequences - 1], HIGH);
             // Debug output
             Serial.print("Turning on GREEN LED ");
             Serial.println(completedSequences - 1);
         }
-        
+
         lcd.print("Switches correct!");
         lcd.setCursor(0, 1);
         lcd.print(sequenceCorrectMsg);
-        
+
         // Try to play success sound
-        if (myDFPlayer.available()) {
+        if (myDFPlayer.available())
+        {
             myDFPlayer.play(4);
         }
-    } else {
+    }
+    else
+    {
         lcd.print("Switches wrong!");
         lcd.setCursor(0, 1);
         lcd.print(sequenceWrongMsg);
-        
+
         flashRedLeds();
-        
+
         // Try to play failure sound
-        if (myDFPlayer.available()) {
+        if (myDFPlayer.available())
+        {
             myDFPlayer.play(5);
         }
-        
+
         applyPenalty();
     }
 }
