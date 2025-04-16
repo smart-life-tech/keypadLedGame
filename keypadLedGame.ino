@@ -409,22 +409,22 @@ void processKeypadInput(char key)
             switch (key)
             {
             case 'A':
-                lcd.print("Switch sequence");
+                lcd.print("Switch seq.");
                 lcd.setCursor(0, 1);
                 lcd.print("Set switches...");
                 break;
             case 'B':
-                lcd.print("Button sequence");
+                lcd.print("Button seq.");
                 lcd.setCursor(0, 1);
                 lcd.print("Press buttons...");
                 break;
             case 'C':
-                lcd.print("Potentiometers");
+                lcd.print("Pots.");
                 lcd.setCursor(0, 1);
                 lcd.print("Adjust pots...");
                 break;
             case 'D':
-                lcd.print("Jack connections");
+                lcd.print("Jack conn.");
                 lcd.setCursor(0, 1);
                 lcd.print("Connect jacks...");
                 break;
