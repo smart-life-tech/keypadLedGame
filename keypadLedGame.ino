@@ -7,7 +7,7 @@
 
 // Display setup
 LiquidCrystal_I2C lcd(0x27, 16, 2); // I2C address 0x27, 16 column and 2 rows
-
+bool a, b, c, d, e = true;
 // MP3 Player setup
 // SoftwareSerial mySoftwareSerial(10, 11); // Old RX, TX
 // Using hardware Serial1 pins 18, 19
@@ -312,6 +312,7 @@ void endGame(bool victory)
             digitalWrite(RED_LEDS[i], HIGH);
         }
     }
+    a, b, c, d, e = true;
 }
 
 void updateCountdownDisplay()
@@ -401,7 +402,7 @@ void processKeypadInput(char key)
     {
         Serial.print("Key pressed seq not active: ");
         Serial.print(key);
-        if (key == 'A' || key == 'B' || key == 'C' || key == 'D' || key == '*')
+        if ((key == 'A' && a) || (key == 'B' && b) || (key == 'C' && c) || (key == 'D' && d) || (key == '*' && e))
         {
             sequenceActive = true;
             currentSequenceType = key;
@@ -416,26 +417,31 @@ void processKeypadInput(char key)
                 lcd.print("Switch seq.");
                 lcd.setCursor(0, 1);
                 lcd.print("Set switches...");
+                a = false;
                 break;
             case 'B':
                 lcd.print("Button seq.");
                 lcd.setCursor(0, 1);
                 lcd.print("Press buttons...");
+                b = false;
                 break;
             case 'C':
                 lcd.print("Pots.");
                 lcd.setCursor(0, 1);
                 lcd.print("Adjust pots...");
+                c = false;
                 break;
             case 'D':
                 lcd.print("Jack conn.");
                 lcd.setCursor(0, 1);
                 lcd.print("Connect jacks...");
+                d = false;
                 break;
             case '*':
                 lcd.print("Keypad code");
                 lcd.setCursor(0, 1);
                 lcd.print("Enter code: ");
+                e = false;
                 break;
             }
 
