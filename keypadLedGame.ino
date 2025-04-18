@@ -185,6 +185,7 @@ void setup()
     lcd.print("Keypad LED Game");
     lcd.setCursor(0, 1);
     lcd.print("Press START");
+    a, b, c, d, e = true;
 }
 
 void loop()
