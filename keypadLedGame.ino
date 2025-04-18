@@ -400,8 +400,8 @@ void processKeypadInput(char key)
     // If no sequence is active, check if a sequence selection key was pressed
     if (!sequenceActive)
     {
-        Serial.print("Key pressed seq not active: ");
-        Serial.print(key);
+        Serial.print("Key pressed seq not active v2 : ");
+        Serial.println(key);
         if ((key == 'A' && a) || (key == 'B' && b) || (key == 'C' && c) || (key == 'D' && d) || (key == '*' && e))
         {
             sequenceActive = true;
@@ -489,8 +489,8 @@ void processKeypadInput(char key)
         // Force countdown display update after showing success/failure message
         delay(2000);
         lastDisplayUpdate = millis() - 1000;
-        Serial.print("Key type pressed seq active: ");
-        Serial.print(currentSequenceType);
+        Serial.print("Key type pressed seq active v2: ");
+        Serial.println(currentSequenceType);
         return;
     }
 
