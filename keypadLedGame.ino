@@ -374,14 +374,14 @@ void checkKeypadCode(char *enteredCode)
         {
             digitalWrite(GREEN_LEDS[completedSequences - 1], HIGH);
         }
-
+        e_active = 0;
         // myDFPlayer.play(4); // Success audio
     }
     else
     {
         showFailureMessage("Keypad code wrong!");
         flashRedLeds();
-        myDFPlayer.play(5); // Failure audio
+        // myDFPlayer.play(5); // Failure audio
         applyPenalty();
     }
 }
@@ -524,7 +524,7 @@ void checkKeypadSequence(char *sequence, int length)
     {
         showFailureMessage("Keypad code wrong!");
         flashRedLeds();
-        myDFPlayer.play(5); // Failure audio
+        // myDFPlayer.play(5); // Failure audio
         applyPenalty();
     }
 }
@@ -546,6 +546,15 @@ void checkPotSequence()
             break;
         }
     }
+    for (int i = 0; i < 6; i++)
+    {
+        int potReading = analogRead(POT_PINS[i]);
+        Serial.print("pot reading : ");
+        Serial.print(potReading);
+        Serial.print(" || saved reading :");
+        Serial.println(potValues[i]);
+    }
+
     Serial.println("Potentiometer check complete. analysing");
     if (correct)
     {
@@ -1315,7 +1324,7 @@ void loop()
         // Check if time is up
         if (millis() - gameStartTime >= countdownDuration)
         {
-            // endGame(false);
+            endGame(false);
         }
 
         // Process keypad input
