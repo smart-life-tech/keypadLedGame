@@ -465,25 +465,20 @@ void processKeypadInput(char key)
         {
         case 'A':
             checkSwitchSequence();
-            a = false;
             break;
         case 'B':
             checkButtonSequence();
-            b = false;
             break;
         case 'C':
             checkPotSequence();
-            c = false;
             break;
         case 'D':
             checkJackConnections();
-            d = false;
             break;
         case '*':
             // For keypad code, evaluate the entered sequence
             currentInputSequence[currentInputIndex] = '\0';
             checkKeypadCode(currentInputSequence);
-            e = false;
             break;
         }
 
@@ -581,6 +576,7 @@ void checkSwitchSequence()
         {
             myDFPlayer.play(4);
         }
+        a = false;
     }
     else
     {
@@ -630,6 +626,8 @@ void checkButtonSequence()
         }
 
         myDFPlayer.play(4); // Success audio
+        Serial.println("button right");
+        b = false;
     }
     else
     {
@@ -666,6 +664,8 @@ void checkKeypadSequence(char *sequence, int length)
         }
 
         myDFPlayer.play(4); // Success audio
+        Serial.println("key right ");
+        e = false;
     }
     else
     {
@@ -706,7 +706,9 @@ void checkPotSequence()
             digitalWrite(GREEN_LEDS[completedSequences - 1], HIGH);
         }
 
-        myDFPlayer.play(4); // Success audio
+        myDFPlayer.play(4); // Success
+        c = false;
+        Serial.println("pot right seq");
     }
     else
     {
@@ -799,7 +801,7 @@ void checkJackConnections()
         jackSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Jack connections OK!");
-        Serial.println("Jack connections OK!");
+        
 
         // Light up a green LED based on completed sequences
         if (completedSequences <= 5)
@@ -808,6 +810,8 @@ void checkJackConnections()
         }
 
         myDFPlayer.play(4); // Success audio
+        Serial.println("Jack connections OK!");
+        d = false;
     }
     else
     {
