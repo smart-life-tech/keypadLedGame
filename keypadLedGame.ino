@@ -417,31 +417,31 @@ void processKeypadInput(char key)
                 lcd.print("Switch seq.");
                 lcd.setCursor(0, 1);
                 lcd.print("Set switches...");
-                //a = false;
+                // a = false;
                 break;
             case 'B':
                 lcd.print("Button seq.");
                 lcd.setCursor(0, 1);
                 lcd.print("Press buttons...");
-                //b = false;
+                // b = false;
                 break;
             case 'C':
                 lcd.print("Pots.");
                 lcd.setCursor(0, 1);
                 lcd.print("Adjust pots...");
-                //c = false;
+                // c = false;
                 break;
             case 'D':
                 lcd.print("Jack conn.");
                 lcd.setCursor(0, 1);
                 lcd.print("Connect jacks...");
-                //d = false;
+                // d = false;
                 break;
             case '*':
                 lcd.print("Keypad code");
                 lcd.setCursor(0, 1);
                 lcd.print("Enter code: ");
-               // e = false;
+                // e = false;
                 break;
             }
 
@@ -464,7 +464,7 @@ void processKeypadInput(char key)
         {
         case 'A':
             checkSwitchSequence();
-            a= false;
+            a = false;
             break;
         case 'B':
             checkButtonSequence();

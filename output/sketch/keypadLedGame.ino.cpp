@@ -100,33 +100,33 @@ void updateCountdownDisplay();
 void seqTimer();
 #line 396 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void processKeypadInput(char key);
-#line 509 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 514 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkKeypadCode(char *enteredCode);
-#line 535 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 540 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkSwitchSequence();
-#line 597 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 602 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkButtonSequence();
-#line 637 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 642 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkKeypadSequence(char *sequence, int length);
-#line 673 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 678 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkPotSequence();
-#line 715 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 720 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkJackConnections();
-#line 816 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 821 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void showSuccessMessage(String specificMessage);
-#line 836 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 841 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void showFailureMessage(String specificMessage);
-#line 856 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 861 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void flashRedLeds();
-#line 870 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 875 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void applyPenalty();
-#line 877 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 882 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void saveGameConfig();
-#line 944 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 949 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void loadGameConfig();
-#line 1012 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 1017 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void processSerialCommand();
-#line 1253 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 1258 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void printConfig();
 #line 87 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void setup()
@@ -462,31 +462,31 @@ void processKeypadInput(char key)
                 lcd.print("Switch seq.");
                 lcd.setCursor(0, 1);
                 lcd.print("Set switches...");
-                a = false;
+                // a = false;
                 break;
             case 'B':
                 lcd.print("Button seq.");
                 lcd.setCursor(0, 1);
                 lcd.print("Press buttons...");
-                b = false;
+                // b = false;
                 break;
             case 'C':
                 lcd.print("Pots.");
                 lcd.setCursor(0, 1);
                 lcd.print("Adjust pots...");
-                c = false;
+                // c = false;
                 break;
             case 'D':
                 lcd.print("Jack conn.");
                 lcd.setCursor(0, 1);
                 lcd.print("Connect jacks...");
-                d = false;
+                // d = false;
                 break;
             case '*':
                 lcd.print("Keypad code");
                 lcd.setCursor(0, 1);
                 lcd.print("Enter code: ");
-                e = false;
+                // e = false;
                 break;
             }
 
@@ -509,20 +509,25 @@ void processKeypadInput(char key)
         {
         case 'A':
             checkSwitchSequence();
+            a = false;
             break;
         case 'B':
             checkButtonSequence();
+            b = false;
             break;
         case 'C':
             checkPotSequence();
+            c = false;
             break;
         case 'D':
             checkJackConnections();
+            d = false;
             break;
         case '*':
             // For keypad code, evaluate the entered sequence
             currentInputSequence[currentInputIndex] = '\0';
             checkKeypadCode(currentInputSequence);
+            e = false;
             break;
         }
 
