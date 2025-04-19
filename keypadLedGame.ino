@@ -60,7 +60,7 @@ unsigned long countdownDuration = 0;
 unsigned long penaltyTime = 0;
 unsigned long lastDisplayUpdate = 0;
 int completedSequences = 0;
-
+int seqent = 0;
 // Game configuration
 int switchPositions[6] = {0};      // 0 for OFF, 1 for ON
 int buttonSequence[6] = {0};       // Stores the correct button sequence (1-6)
@@ -461,8 +461,8 @@ void checkButtonSequence()
     // Check if buttons match the expected sequence
     for (int i = 0; i < 6; i++)
     {
-       Serial.print(" saved button seq.");
-       Serial.println(buttonSequence[i]);
+        Serial.print(" saved button seq.");
+        Serial.println(buttonSequence[i]);
     }
 
     // Check if buttons match the expected sequence
@@ -1311,8 +1311,9 @@ void button_active()
         {
             if (buttonPressed[i])
             {
-                delay(200);
-                checkbuttonSequence[i] = !buttonStates[i];
+                delay(800);
+                checkbuttonSequence[seqent] = i + 1;
+                seqent++;
                 // Example debug output
                 Serial.print("Button  ");
                 Serial.print(i + 1);
