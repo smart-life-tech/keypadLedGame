@@ -538,11 +538,11 @@ void checkPotSequence()
     Serial.print("Checking pot sequence...");
 
     // Check if all potentiometers are at the correct values (with some tolerance)
-    const int TOLERANCE = 50; // Tolerance for potentiometer readings
+    const int TOLERANCE = 5; // Tolerance for potentiometer readings
 
     for (int i = 0; i < 6; i++)
     {
-        int potReading = analogRead(POT_PINS[i]) / 10;
+        int potReading = (analogRead(POT_PINS[i]) / 10);
         if (abs(potReading - potValues[i]) > TOLERANCE)
         {
             correct = false;
@@ -551,7 +551,7 @@ void checkPotSequence()
     }
     for (int i = 0; i < 6; i++)
     {
-        int potReading = analogRead(POT_PINS[i]);
+        int potReading = analogRead(POT_PINS[i])/10;
         Serial.print("pot reading : ");
         Serial.print(potReading);
         Serial.print(" || saved reading :");
@@ -1301,6 +1301,7 @@ void button_active()
         int buttonState = digitalRead(BUTTON_PINS[i]);
         if (!buttonState)
         {
+            delay(200);
             checkbuttonSequence[i] = buttonState;
             // Example debug output
             Serial.print("Button  ");
