@@ -1315,14 +1315,14 @@ void button_active()
                 break;
             if (buttonPressed[i])
             {
-                delay(800);
+                delay(100);
                 checkbuttonSequence[seqent] = i + 1;
                 seqent++;
                 // Example debug output
                 Serial.print("Button  ");
                 Serial.print(i + 1);
                 Serial.print(" pressed : ");
-                Serial.println(checkbuttonSequence[i]);
+                Serial.println(checkbuttonSequence[seqent]);
                 buttonPressed[i] = false;
                 break;
             }
