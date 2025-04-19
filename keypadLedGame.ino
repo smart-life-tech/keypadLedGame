@@ -481,6 +481,7 @@ void checkButtonSequence()
         buttonSequenceCompleted = true;
         completedSequences++;
         showSuccessMessage("Button seq correct!");
+        seqent = 0;
 
         // Light up a green LED based on completed sequences
         if (completedSequences <= 5)
@@ -498,6 +499,7 @@ void checkButtonSequence()
         flashRedLeds();
         // myDFPlayer.play(5); // Failure audio
         applyPenalty();
+        seqent = 0;
     }
 }
 
