@@ -51,7 +51,7 @@ const int POT_PINS[6] = {A0, A1, A2, A3, A4, A5};
 
 // Jack connection pins - updated
 const int JACK_PINS[16] = {30, 31, 32, 33, 34, 35, 36, 37, 41, 42, 43, 44, 45, 46, 47, 48};
-
+int jack_virtualPin[16] = {};
 // Game state variables
 bool gameStarted = false;
 bool gameEnded = false;
@@ -594,20 +594,27 @@ void checkPotSequence()
     Serial.println("Potentiometer check complete.");
 }
 
-void checkJackConnections()
+void active_jack()
 {
-    bool correct = true;
-    Serial.print("Checking jack connections...");
-    Serial.println();
-    // Create a matrix to track which jacks are connected
+    Serial.println("\n--- JACK CONNECTION DETECTION STARTED ---");
+    bool correctConnections[8] = {false}; // Track which pairs are correctly connected
+    bool incorrectConnection = false;     // Flag for any incorrect connection
+
+    // First, detect all current connections
     bool jackMatrix[16][16] = {{false}};
 
-    // First, detect all connections
+    Serial.println("Scanning all jack pins for connections...");
+    // Set each pin as OUTPUT LOW one at a time and check which other pins detect it
     for (int i = 0; i < 16; i++)
     {
-        // Set current pin as OUTPUT LOW temporarily
         pinMode(JACK_PINS[i], OUTPUT);
         digitalWrite(JACK_PINS[i], LOW);
+
+        Serial.print("Testing jack pin ");
+        Serial.print(i);
+        Serial.print(" (physical pin ");
+        Serial.print(JACK_PINS[i]);
+        Serial.println(")");
 
         // Check which other pins detect the LOW signal
         for (int j = 0; j < 16; j++)
@@ -617,36 +624,58 @@ void checkJackConnections()
                 if (digitalRead(JACK_PINS[j]) == LOW)
                 {
                     jackMatrix[i][j] = true;
+                    Serial.print("  Connection found: Jack ");
+                    Serial.print(i);
+                    Serial.print(" <-> Jack ");
+                    Serial.println(j);
                 }
             }
         }
 
         // Reset pin back to INPUT_PULLUP
         pinMode(JACK_PINS[i], INPUT_PULLUP);
+        delay(10); // Small delay to stabilize
     }
 
+    Serial.println("\nChecking required connections:");
     // Check if the detected connections match the required connections
     for (int i = 0; i < 8; i++)
     {
         int jack1 = jackConnections[i][0];
         int jack2 = jackConnections[i][1];
 
+        Serial.print("Required pair ");
+        Serial.print(i);
+        Serial.print(": Jack ");
+        Serial.print(jack1);
+        Serial.print(" <-> Jack ");
+        Serial.print(jack2);
+
         if (jack1 >= 0 && jack2 >= 0)
         { // Valid connection pair
-            if (!jackMatrix[jack1][jack2] || !jackMatrix[jack2][jack1])
+            if (jackMatrix[jack1][jack2] || jackMatrix[jack2][jack1])
             {
-                correct = false;
-                break;
+                correctConnections[i] = true;
+                Serial.println(" - CONNECTED ✓");
             }
+            else
+            {
+                Serial.println(" - NOT CONNECTED ✗");
+            }
+        }
+        else
+        {
+            Serial.println(" - INVALID PAIR (negative values)");
         }
     }
 
-    // Also check that there are no extra connections
+    Serial.println("\nChecking for incorrect connections:");
+    // Check for any incorrect connections (connections that aren't in our required list)
     for (int i = 0; i < 16; i++)
     {
         for (int j = i + 1; j < 16; j++)
         {
-            // If this connection exists but isn't in our required list
+            // If this connection exists
             if (jackMatrix[i][j] || jackMatrix[j][i])
             {
                 bool isRequiredConnection = false;
@@ -659,16 +688,127 @@ void checkJackConnections()
                         break;
                     }
                 }
+
                 if (!isRequiredConnection)
                 {
-                    correct = false;
-                    break;
+                    incorrectConnection = true;
+                    Serial.print("Incorrect connection found: Jack ");
+                    Serial.print(i);
+                    Serial.print(" <-> Jack ");
+                    Serial.println(j);
                 }
             }
         }
-        if (!correct)
-            break;
     }
+
+    if (!incorrectConnection)
+    {
+        Serial.println("No incorrect connections found ✓");
+    }
+
+    // Check if all required connections are made and no incorrect ones exist
+    bool allCorrect = !incorrectConnection;
+    for (int i = 0; i < 8; i++)
+    {
+        if (jackConnections[i][0] >= 0 && jackConnections[i][1] >= 0 && !correctConnections[i])
+        {
+            allCorrect = false;
+            Serial.print("Missing required connection: Pair ");
+            Serial.println(i);
+        }
+    }
+
+    // Update the jackSequenceCompleted flag based on the result
+    jackSequenceCompleted = allCorrect;
+
+    Serial.print("\nFINAL RESULT: Jack sequence ");
+    if (jackSequenceCompleted)
+    {
+        Serial.println("COMPLETED SUCCESSFULLY ✓");
+    }
+    else
+    {
+        Serial.println("FAILED ✗");
+    }
+    Serial.println("--- JACK CONNECTION DETECTION ENDED ---\n");
+}
+
+void checkJackConnections()
+{
+    active_jack();
+    bool correct = true;
+    Serial.print("Checking jack connections...");
+    Serial.println();
+    // Create a matrix to track which jacks are connected
+    bool jackMatrix[16][16] = {{false}};
+
+    // First, detect all connections
+    for (int i = 0; i < 16; i++)
+    {
+        // Set current pin as OUTPUT LOW temporarily
+        // pinMode(JACK_PINS[i], OUTPUT);
+        // digitalWrite(JACK_PINS[i], LOW);
+
+        // // Check which other pins detect the LOW signal
+        // for (int j = 0; j < 16; j++)
+        // {
+        //     if (i != j)
+        //     {
+        //         if (digitalRead(JACK_PINS[j]) == LOW)
+        //         {
+        //             jackMatrix[i][j] = true;
+        //         }
+        //     }
+        // }
+
+        // Reset pin back to INPUT_PULLUP
+        // pinMode(JACK_PINS[i], INPUT_PULLUP);
+    }
+
+    // Check if the detected connections match the required connections
+    // for (int i = 0; i < 8; i++)
+    // {
+    //     int jack1 = jackConnections[i][0];
+    //     int jack2 = jackConnections[i][1];
+
+    //     if (jack1 >= 0 && jack2 >= 0)
+    //     { // Valid connection pair
+    //         if (!jackMatrix[jack1][jack2] || !jackMatrix[jack2][jack1])
+    //         {
+    //             correct = false;
+    //             break;
+    //         }
+    //     }
+    // }
+
+    // // Also check that there are no extra connections
+    // for (int i = 0; i < 16; i++)
+    // {
+    //     for (int j = i + 1; j < 16; j++)
+    //     {
+    //         // If this connection exists but isn't in our required list
+    //         if (jackMatrix[i][j] || jackMatrix[j][i])
+    //         {
+    //             bool isRequiredConnection = false;
+    //             for (int k = 0; k < 8; k++)
+    //             {
+    //                 if ((jackConnections[k][0] == i && jackConnections[k][1] == j) ||
+    //                     (jackConnections[k][0] == j && jackConnections[k][1] == i))
+    //                 {
+    //                     isRequiredConnection = true;
+    //                     break;
+    //                 }
+    //             }
+    //             if (!isRequiredConnection)
+    //             {
+    //                 correct = false;
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //     if (!correct)
+    //         break;
+    // }
 
     if (correct)
     {
@@ -1181,6 +1321,15 @@ void printConfig()
             Serial.print(", ");
         }
         Serial.println();
+    }
+    for (int i = 0; i < 8; i++)
+    {
+        jack_virtualPin[i] = (jackConnections[i][0]);
+        Serial.print(jackConnections[i][1]);
+    }
+    for (int i = 0; i < 8; i++)
+    {
+        jack_virtualPin[i + 8] = (jackConnections[i][1]);
     }
     delay(50);
     Serial.print("Keypad Code: ");
