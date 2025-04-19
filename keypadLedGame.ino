@@ -1309,6 +1309,8 @@ void button_active()
         // buttonPressed[i] = buttonState;
         if (!buttonStates[i]) // button is pressed
         {
+            if ((checkbuttonSequence[0] == (i + 1)) || (checkbuttonSequence[1] == (i + 1)) || (checkbuttonSequence[2] == (i + 1)) || (checkbuttonSequence[3] == (i + 1)) || (checkbuttonSequence[4] == (i + 1)) || (checkbuttonSequence[5] == (i + 1)))
+                break;
             if (buttonPressed[i])
             {
                 delay(800);
