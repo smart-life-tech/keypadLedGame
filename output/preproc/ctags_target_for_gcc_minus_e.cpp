@@ -69,7 +69,8 @@ int checkbuttonSequence[6] = {0}; // Stores the correct entred button sequence (
 int potValues[6] = {0}; // Target values for potentiometers (0-1023)
 int jackConnections[8][2] = {{0}}; // Pairs of jacks that should be connected
 char keypadCode[10] = ""; // Keypad code to be entered
-
+bool buttonPressed[6] = {true, true, true, true, true, true};
+bool buttonStates[6] = {true, true, true, true, true, true};
 // Sequence completion status
 bool switchSequenceCompleted = false;
 bool buttonSequenceCompleted = false;
@@ -539,11 +540,11 @@ void checkPotSequence()
     Serial.print("Checking pot sequence...");
 
     // Check if all potentiometers are at the correct values (with some tolerance)
-    const int TOLERANCE = 50; // Tolerance for potentiometer readings
+    const int TOLERANCE = 5; // Tolerance for potentiometer readings
 
     for (int i = 0; i < 6; i++)
     {
-        int potReading = analogRead(POT_PINS[i]) / 10;
+        int potReading = (analogRead(POT_PINS[i]) / 10);
         if (((potReading - potValues[i])>0?(potReading - potValues[i]):-(potReading - potValues[i])) > TOLERANCE)
         {
             correct = false;
@@ -552,7 +553,7 @@ void checkPotSequence()
     }
     for (int i = 0; i < 6; i++)
     {
-        int potReading = analogRead(POT_PINS[i]);
+        int potReading = analogRead(POT_PINS[i]) / 10;
         Serial.print("pot reading : ");
         Serial.print(potReading);
         Serial.print(" || saved reading :");
@@ -1299,15 +1300,26 @@ void button_active()
     for (int i = 0; i < 6; i++)
     {
         // Read button state and store in array
-        int buttonState = digitalRead(BUTTON_PINS[i]);
-        if (!buttonState)
+        buttonStates[i] = digitalRead(BUTTON_PINS[i]);
+        // buttonPressed[i] = buttonState;
+        if (!buttonStates[i]) // button is pressed
         {
-            checkbuttonSequence[i] = buttonState;
-            // Example debug output
-            Serial.print("Button  ");
-            Serial.print(i + 1);
-            Serial.print(" pressed : ");
-            Serial.println(checkbuttonSequence[i]);
+            if (buttonPressed[i])
+            {
+                delay(200);
+                checkbuttonSequence[i] = !buttonStates[i];
+                // Example debug output
+                Serial.print("Button  ");
+                Serial.print(i + 1);
+                Serial.print(" pressed : ");
+                Serial.println(checkbuttonSequence[i]);
+                buttonPressed[i] = false;
+                break;
+            }
+        }
+        else
+        {
+            buttonPressed[i] = true;
         }
     }
 }

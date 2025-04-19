@@ -69,6 +69,7 @@ int potValues[6] = {0};            // Target values for potentiometers (0-1023)
 int jackConnections[8][2] = {{0}}; // Pairs of jacks that should be connected
 char keypadCode[10] = "";          // Keypad code to be entered
 bool buttonPressed[6] = {true, true, true, true, true, true};
+bool buttonStates[6] = {true, true, true, true, true, true};
 // Sequence completion status
 bool switchSequenceCompleted = false;
 bool buttonSequenceCompleted = false;
@@ -1298,19 +1299,21 @@ void button_active()
     for (int i = 0; i < 6; i++)
     {
         // Read button state and store in array
-        int buttonState = digitalRead(BUTTON_PINS[i]);
-        if (!buttonState)
+        buttonStates[i] = digitalRead(BUTTON_PINS[i]);
+        // buttonPressed[i] = buttonState;
+        if (!buttonStates[i]) // button is pressed
         {
             if (buttonPressed[i])
             {
                 delay(200);
-                checkbuttonSequence[i] = buttonState;
+                checkbuttonSequence[i] = !buttonStates[i];
                 // Example debug output
                 Serial.print("Button  ");
                 Serial.print(i + 1);
                 Serial.print(" pressed : ");
                 Serial.println(checkbuttonSequence[i]);
                 buttonPressed[i] = false;
+                break;
             }
         }
         else

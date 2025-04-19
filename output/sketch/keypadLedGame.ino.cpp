@@ -70,7 +70,8 @@ int checkbuttonSequence[6] = {0};  // Stores the correct entred button sequence 
 int potValues[6] = {0};            // Target values for potentiometers (0-1023)
 int jackConnections[8][2] = {{0}}; // Pairs of jacks that should be connected
 char keypadCode[10] = "";          // Keypad code to be entered
-
+bool buttonPressed[6] = {true, true, true, true, true, true};
+bool buttonStates[6] = {true, true, true, true, true, true};
 // Sequence completion status
 bool switchSequenceCompleted = false;
 bool buttonSequenceCompleted = false;
@@ -87,51 +88,51 @@ String gameDefeatMsg = "Game Over! Time's up!";
 unsigned long sequenceStartTime = 0;
 const unsigned long SEQUENCE_TIMEOUT = 60000; // 60 seconds in milliseconds
 
-#line 88 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 89 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void startGame();
-#line 129 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 130 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void endGame(bool victory);
-#line 164 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 165 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void updateCountdownDisplay();
-#line 201 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 202 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void seqTimer();
-#line 242 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 243 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void processKeypadInput(char key);
-#line 366 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 367 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkKeypadCode(char *enteredCode);
-#line 392 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 393 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkSwitchSequence();
-#line 455 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 456 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkButtonSequence();
-#line 497 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 498 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkKeypadSequence(char *sequence, int length);
-#line 535 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 536 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkPotSequence();
-#line 588 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 589 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void checkJackConnections();
-#line 690 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 691 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void showSuccessMessage(String specificMessage);
-#line 709 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 710 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void showFailureMessage(String specificMessage);
-#line 729 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 730 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void flashRedLeds();
-#line 743 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 744 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void applyPenalty();
-#line 750 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 751 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void saveGameConfig();
-#line 817 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 818 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void loadGameConfig();
-#line 885 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 886 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void processSerialCommand();
-#line 1126 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 1127 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void printConfig();
-#line 1188 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 1189 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void setup();
-#line 1296 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 1297 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void button_active();
-#line 1314 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 1326 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void loop();
-#line 88 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
+#line 89 "c:\\Users\\USER\\Documents\\Arduino\\keypadLedGame\\keypadLedGame.ino"
 void startGame()
 {
     // Reset game state
@@ -585,11 +586,11 @@ void checkPotSequence()
     Serial.print("Checking pot sequence...");
 
     // Check if all potentiometers are at the correct values (with some tolerance)
-    const int TOLERANCE = 50; // Tolerance for potentiometer readings
+    const int TOLERANCE = 5; // Tolerance for potentiometer readings
 
     for (int i = 0; i < 6; i++)
     {
-        int potReading = analogRead(POT_PINS[i]) / 10;
+        int potReading = (analogRead(POT_PINS[i]) / 10);
         if (abs(potReading - potValues[i]) > TOLERANCE)
         {
             correct = false;
@@ -598,7 +599,7 @@ void checkPotSequence()
     }
     for (int i = 0; i < 6; i++)
     {
-        int potReading = analogRead(POT_PINS[i]);
+        int potReading = analogRead(POT_PINS[i]) / 10;
         Serial.print("pot reading : ");
         Serial.print(potReading);
         Serial.print(" || saved reading :");
@@ -1345,15 +1346,26 @@ void button_active()
     for (int i = 0; i < 6; i++)
     {
         // Read button state and store in array
-        int buttonState = digitalRead(BUTTON_PINS[i]);
-        if (!buttonState)
+        buttonStates[i] = digitalRead(BUTTON_PINS[i]);
+        // buttonPressed[i] = buttonState;
+        if (!buttonStates[i]) // button is pressed
         {
-            checkbuttonSequence[i] = buttonState;
-            // Example debug output
-            Serial.print("Button  ");
-            Serial.print(i + 1);
-            Serial.print(" pressed : ");
-            Serial.println(checkbuttonSequence[i]);
+            if (buttonPressed[i])
+            {
+                delay(200);
+                checkbuttonSequence[i] = !buttonStates[i];
+                // Example debug output
+                Serial.print("Button  ");
+                Serial.print(i + 1);
+                Serial.print(" pressed : ");
+                Serial.println(checkbuttonSequence[i]);
+                buttonPressed[i] = false;
+                break;
+            }
+        }
+        else
+        {
+            buttonPressed[i] = true;
         }
     }
 }
