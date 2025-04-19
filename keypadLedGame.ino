@@ -271,6 +271,8 @@ void processKeypadInput(char key)
                 lcd.print("Button seq.");
                 lcd.setCursor(0, 1);
                 lcd.print("Press buttons...");
+                for (int i = 0; i < 6; i++)
+                    checkbuttonSequence[i] = 0;
                 // b = false;
                 break;
             case 'C':
@@ -1296,14 +1298,16 @@ void button_active()
     for (int i = 0; i < 6; i++)
     {
         // Read button state and store in array
-        int buttonState = digitalRead(BUTTON_PINS[i]) == LOW ? 1 : 0;
-        checkbuttonSequence[i] = buttonState;
-
-        // Example debug output
-        Serial.print("Button ");
-        Serial.print(i + 1);
-        Serial.print(": ");
-        Serial.println(checkbuttonSequence[i]);
+        int buttonState = digitalRead(BUTTON_PINS[i]);
+        if (!buttonState)
+        {
+            checkbuttonSequence[i] = buttonState;
+            // Example debug output
+            Serial.print("Button  ");
+            Serial.print(i + 1);
+            Serial.print(" pressed : ");
+            Serial.println(checkbuttonSequence[i]);
+        }
     }
 }
 
