@@ -65,6 +65,7 @@ int completedSequences = 0;
 // Game configuration
 int switchPositions[6] = {0}; // 0 for OFF, 1 for ON
 int buttonSequence[6] = {0}; // Stores the correct button sequence (1-6)
+int checkbuttonSequence[6] = {0}; // Stores the correct entred button sequence (1-6)
 int potValues[6] = {0}; // Target values for potentiometers (0-1023)
 int jackConnections[8][2] = {{0}}; // Pairs of jacks that should be connected
 char keypadCode[10] = ""; // Keypad code to be entered
@@ -81,7 +82,7 @@ String gameStartMsg = "Game Started! Good luck!";
 String sequenceCorrectMsg = "Well done!";
 String sequenceWrongMsg = "Try again!";
 char gameVictoryMsg[33] = "Victory! All tasks done!";
-char gameDefeatMsg[33] = "Game Over! Time's up!";
+String gameDefeatMsg = "Game Over! Time's up!";
 unsigned long sequenceStartTime = 0;
 const unsigned long SEQUENCE_TIMEOUT = 60000; // 60 seconds in milliseconds
 
@@ -148,7 +149,7 @@ void endGame(bool victory)
     {
         lcd.print(gameDefeatMsg);
         lcd.setCursor(0, 1);
-        lcd.print("Time's up!");
+        lcd.print("Time's up!      ");
         // myDFPlayer.play(3); // Defeat audio
 
         // Turn on all red LEDs
@@ -157,8 +158,8 @@ void endGame(bool victory)
             digitalWrite(RED_LEDS[i], 0x1);
         }
     }
-    a_active, b_active, c_active, d_active, e_active = 100;
-    b_active = 100;
+    a_active = b_active = c_active = d_active = e_active = 100;
+    // b_active = 100;
 }
 
 void updateCountdownDisplay()
@@ -459,8 +460,8 @@ void checkButtonSequence()
     // Check if buttons match the expected sequence
     for (int i = 0; i < 6; i++)
     {
-        int buttonState = digitalRead(BUTTON_PINS[i]) == 0x0 ? 1 : 0;
-        if (buttonState != (buttonSequence[i] == i + 1 ? 1 : 0))
+        // int buttonState = digitalRead(BUTTON_PINS[i]) == LOW ? 1 : 0;
+        if (checkbuttonSequence[i] != (buttonSequence[i] == i + 1 ? 1 : 0))
         {
             correct = false;
             break;
@@ -525,7 +526,7 @@ void checkKeypadSequence(char *sequence, int length)
     {
         showFailureMessage("Keypad code wrong!");
         flashRedLeds();
-       // myDFPlayer.play(5); // Failure audio
+        // myDFPlayer.play(5); // Failure audio
         applyPenalty();
     }
 }
@@ -540,13 +541,22 @@ void checkPotSequence()
 
     for (int i = 0; i < 6; i++)
     {
-        int potReading = analogRead(POT_PINS[i]);
+        int potReading = analogRead(POT_PINS[i]) / 10;
         if (((potReading - potValues[i])>0?(potReading - potValues[i]):-(potReading - potValues[i])) > TOLERANCE)
         {
             correct = false;
             break;
         }
     }
+    for (int i = 0; i < 6; i++)
+    {
+        int potReading = analogRead(POT_PINS[i]);
+        Serial.print("pot reading : ");
+        Serial.print(potReading);
+        Serial.print(" || saved reading :");
+        Serial.println(potValues[i]);
+    }
+
     Serial.println("Potentiometer check complete. analysing");
     if (correct)
     {
@@ -866,7 +876,7 @@ void loadGameConfig()
     }
     for (int i = 0; i < 33; i++)
     {
-        gameDefeatMsg[i] = EEPROM.read(addr++);
+        // gameDefeatMsg[i] = EEPROM.read(addr++);
     }
 }
 
@@ -1282,6 +1292,21 @@ void setup()
     d_active = 100;
     e_active = 100;
 }
+void button_active()
+{
+    for (int i = 0; i < 6; i++)
+    {
+        // Read button state and store in array
+        int buttonState = digitalRead(BUTTON_PINS[i]) == 0x0 ? 1 : 0;
+        checkbuttonSequence[i] = buttonState;
+
+        // Example debug output
+        Serial.print("Button ");
+        Serial.print(i + 1);
+        Serial.print(": ");
+        Serial.println(checkbuttonSequence[i]);
+    }
+}
 
 void loop()
 {
@@ -1290,7 +1315,8 @@ void loop()
     {
         processSerialCommand();
     }
-
+    if (currentSequenceType == 'B')
+        button_active();
     // Check if start button is pressed
     if (!gameStarted && !gameEnded && digitalRead(START_BUTTON) == 0x0)
     {
@@ -1316,7 +1342,7 @@ void loop()
         // Check if time is up
         if (millis() - gameStartTime >= countdownDuration)
         {
-            // endGame(false);
+            endGame(false);
         }
 
         // Process keypad input
