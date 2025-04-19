@@ -459,12 +459,18 @@ void checkButtonSequence()
     // Implementation that doesn't require parameters
     // This would need to directly check the button states
     bool correct = true;
+    // Check if buttons match the expected sequence
+    for (int i = 0; i < 6; i++)
+    {
+       Serial.print(" saved button seq.");
+       Serial.println(buttonSequence[i]);
+    }
 
     // Check if buttons match the expected sequence
     for (int i = 0; i < 6; i++)
     {
         // int buttonState = digitalRead(BUTTON_PINS[i]) == LOW ? 1 : 0;
-        if (checkbuttonSequence[i] != (buttonSequence[i] == i + 1 ? 1 : 0))
+        if (checkbuttonSequence[i] != (buttonSequence[i]))
         {
             correct = false;
             break;
